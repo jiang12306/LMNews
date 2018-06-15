@@ -1,0 +1,55 @@
+//
+//  LMNews.pch
+//  LMNews
+//
+//  Created by Jiang Kuan on 2018/5/28.
+//  Copyright © 2018年 rongyao100. All rights reserved.
+//
+
+#ifndef LMNews_pch
+#define LMNews_pch
+
+// Include any system framework and library headers here that should be included in all compilation units.
+// You will also need to set the Prefix Header build setting of one or more of your targets to reference this file.
+
+
+#import "UIColor+HexString.h"
+#import "LMDatabaseTool.h"
+
+
+//主题颜色 橘色
+#define themeOrangeString @"#ffa200"
+
+//关注 颜色
+#define subOrangeString @"#ff7200"
+
+//新闻详情 颜色
+#define articleDetailString @"#595959"
+
+//已读 颜色
+#define alreadyReadString @"#afafaf"
+
+
+//微信 相关
+#define  weChatAppId @"wxe4983e1c7d5dbb8c"
+//登录
+#define weChatLoginNotifyName @"weChatLoginNotifyName"
+#define weChatLoginState @"weChatLoginState"
+#define weChatLoginKey @"weChatLoginKey"
+//分享
+#define weChatShareNotifyName @"weChatShareNotifyName"
+#define weChatShareKey @"weChatShareKey"
+
+
+
+//QQ 相关
+#define qqAppId @"101479744"
+
+
+
+//
+#define NetworkFailedError @"网络加载失败"
+
+
+
+#endif /* LMNews_pch */
