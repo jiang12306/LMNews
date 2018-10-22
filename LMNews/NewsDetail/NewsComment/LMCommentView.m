@@ -47,10 +47,10 @@
                 numLabRect = CGRectMake(25, 5, 20, 12);
             }
             self.commentNumLab = [[UILabel alloc]initWithFrame:numLabRect];
-            self.commentNumLab.layer.cornerRadius = 5;
-            self.commentNumLab.layer.masksToBounds = YES;
-            self.commentNumLab.backgroundColor = [UIColor colorWithHex:themeOrangeString];
-            self.commentNumLab.textColor = [UIColor whiteColor];
+//            self.commentNumLab.layer.cornerRadius = 5;
+//            self.commentNumLab.layer.masksToBounds = YES;
+            self.commentNumLab.backgroundColor = [UIColor whiteColor];//[UIColor colorWithHex:themeOrangeString];
+            self.commentNumLab.textColor = [UIColor redColor];
             self.commentNumLab.textAlignment = NSTextAlignmentCenter;
             self.commentNumLab.font = [UIFont systemFontOfSize:8];
             [self.commentNumBtn addSubview:self.commentNumLab];

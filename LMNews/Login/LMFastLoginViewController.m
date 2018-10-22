@@ -64,7 +64,7 @@
     self.phoneTF.backgroundColor = [UIColor whiteColor];
     self.phoneTF.layer.borderColor = [UIColor colorWithRed:140.f/255 green:140.f/255 blue:140.f/255 alpha:1].CGColor;
     self.phoneTF.layer.borderWidth = 1;
-    self.phoneTF.layer.cornerRadius = 1;
+    self.phoneTF.layer.cornerRadius = 5;
     self.phoneTF.layer.masksToBounds = YES;
     self.phoneTF.keyboardType = UIKeyboardTypeNumberPad;
     self.phoneTF.clearButtonMode = UITextFieldViewModeWhileEditing;
@@ -87,12 +87,15 @@
     self.codeTF = [[UITextField alloc]initWithFrame:CGRectMake(self.phoneTF.frame.origin.x, self.codeBtn.frame.origin.y, self.view.frame.size.width - self.codeBtn.frame.size.width - spaceX * 3, self.phoneTF.frame.size.height)];
     self.codeTF.backgroundColor = [UIColor whiteColor];
     self.codeTF.layer.borderWidth = 1;
-    self.codeTF.layer.cornerRadius = 1;
+    self.codeTF.layer.cornerRadius = 5;
     self.codeTF.layer.masksToBounds = YES;
     self.codeTF.layer.borderColor = [UIColor colorWithRed:140.f/255 green:140.f/255 blue:140.f/255 alpha:1].CGColor;
     self.codeTF.keyboardType = UIKeyboardTypeNumberPad;
     self.codeTF.clearButtonMode = UITextFieldViewModeWhileEditing;
-    self.codeTF.placeholder = @" 验证码";
+    self.codeTF.placeholder = @"验证码";
+    self.codeTF.leftViewMode = UITextFieldViewModeAlways;
+    UIView* codeLeftView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, 5, labHeight)];
+    self.codeTF.leftView = codeLeftView;
     [self.scrollView addSubview:self.codeTF];
     
     self.sendBtn = [[UIButton alloc]initWithFrame:CGRectMake(spaceX, self.codeTF.frame.origin.y + self.codeTF.frame.size.height + spaceY, self.view.frame.size.width - spaceX * 2, labHeight)];
@@ -113,14 +116,15 @@
     
     self.weChatBtn = [[UIButton alloc]initWithFrame:CGRectMake(0, self.view.frame.size.height - 100, 80, 100)];
     [self.weChatBtn addTarget:self action:@selector(clickedWeChatButton:) forControlEvents:UIControlEventTouchUpInside];
-    self.weChatBtn.center = CGPointMake(self.view.frame.size.width / 3, self.view.frame.size.height - 120);
+    self.weChatBtn.center = CGPointMake(self.view.frame.size.width / 3, self.view.frame.size.height - 150);
     [self.scrollView addSubview:self.weChatBtn];
     
     UIImageView* weChatIV = [[UIImageView alloc]initWithFrame:CGRectMake(7, 0, 65, 60)];
-    weChatIV.image = [UIImage imageNamed:@"weChat"];
+    weChatIV.image = [UIImage imageNamed:@"fastLoginAlert_WeChat"];
     [self.weChatBtn addSubview:weChatIV];
-    UILabel* weChatLab = [[UILabel alloc]initWithFrame:CGRectMake(0, 70, 80, 20)];
+    UILabel* weChatLab = [[UILabel alloc]initWithFrame:CGRectMake(0, 60, 80, 20)];
     weChatLab.font = [UIFont systemFontOfSize:16];
+    weChatLab.textColor = [UIColor grayColor];
     weChatLab.text = @"微信登录";
     weChatLab.textAlignment = NSTextAlignmentCenter;
     [self.weChatBtn addSubview:weChatLab];
@@ -131,10 +135,11 @@
     [self.scrollView addSubview:self.qqBtn];
     
     UIImageView* qqIV = [[UIImageView alloc]initWithFrame:CGRectMake(13, 0, 53, 60)];
-    qqIV.image = [UIImage imageNamed:@"qq"];
+    qqIV.image = [UIImage imageNamed:@"fastLoginAlert_QQ"];
     [self.qqBtn addSubview:qqIV];
-    UILabel* qqLab = [[UILabel alloc]initWithFrame:CGRectMake(0, 70, 80, 20)];
+    UILabel* qqLab = [[UILabel alloc]initWithFrame:CGRectMake(0, 60, 80, 20)];
     qqLab.font = [UIFont systemFontOfSize:16];
+    qqLab.textColor = [UIColor grayColor];
     qqLab.text = @"QQ登录";
     qqLab.textAlignment = NSTextAlignmentCenter;
     [self.qqBtn addSubview:qqLab];
@@ -197,7 +202,6 @@
     [self stopEditing];
     
     if (self.codeBtn.selected == NO) {
-        
         VerifyCodeReqBuilder* builder = [VerifyCodeReq builder];
         [builder setPhoneNum:phoneStr];
         [builder setSmsType:SmsTypeSmsReg];
@@ -227,7 +231,6 @@
                         [self showMBProgressHUDWithText:@"获取验证码失败"];
                     }
                 }
-                
             } @catch (NSException *exception) {
                 [self showMBProgressHUDWithText:NetworkFailedError];
             } @finally {
@@ -250,7 +253,7 @@
         return;
     }
     if (codeStr.length == 0) {
-        [self showMBProgressHUDWithText:@"密码不能为空"];
+        [self showMBProgressHUDWithText:@"验证码不能为空"];
         return;
     }
     
@@ -355,7 +358,7 @@
     }
 }
 
-//点击 微信 登录
+//点击 QQ 登录
 -(void)clickedQQButton:(UIButton* )sender {
     [self stopEditing];
     

@@ -66,4 +66,6 @@ typedef void (^LMCommentModelBlock) (CGFloat labHeight, CGFloat labOriginHeight,
 //根据后台给的宽高适配屏幕计算最终宽高
 +(CGSize )caculateImageSizeWithImageWidth:(CGFloat )originWidth imageHeight:(CGFloat )originHeight maxWidth:(CGFloat )maxWidth;
 
+
++(CGFloat )caculateTextViewHeightWithText:(NSAttributedString* )text maxWidth:(CGFloat )maxWidth font:(UIFont* )font;
 @end

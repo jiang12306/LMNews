@@ -36,6 +36,13 @@
         [self.aiView stopAnimating];
         self.aiView.hidden = YES;
     }
+    if (!self.textView) {
+        self.textView = [[UITextView alloc]initWithFrame:CGRectMake(10, self.webView.frame.origin.y + self.webView.frame.size.height + 10, screenWidth - 10 * 2, 0)];
+        self.textView.font = [UIFont systemFontOfSize:16];
+        self.textView.editable = NO;
+        self.textView.scrollEnabled = NO;
+        [self.contentView addSubview:self.textView];
+    }
 }
 
 -(void)setupVideoContent:(LMNewsDetailModel *)model {
@@ -49,6 +56,13 @@
         NSString* encodeStr = [urlStr stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
         NSURL* encodeUrl = [NSURL URLWithString:encodeStr];
         [self.webView loadRequest:[NSURLRequest requestWithURL:encodeUrl]];
+    }
+    NSAttributedString* str = model.text;
+    if (str != nil && str.length > 0) {
+        self.textView.attributedText = str;
+        self.textView.frame = CGRectMake(10, self.webView.frame.origin.y + self.webView.frame.size.height + 10, self.webView.frame.size.width, model.titleHeight);
+    }else {
+        self.textView.frame = CGRectMake(10, 0, self.webView.frame.size.width, 0);
     }
 }
 

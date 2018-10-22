@@ -72,16 +72,16 @@ static CGFloat slideSpace = 70;//滑动距离 显示/隐藏 置顶 删除 按钮
         [self.cellView addSubview:self.nameLab];
     }
     if (!self.timeLab) {
-        self.timeLab = [[UILabel alloc]initWithFrame:CGRectMake(self.nameLab.frame.origin.x + self.nameLab.frame.size.width + 10, 10, 100, CommentNameLabHeight)];
-        self.timeLab.textColor = [UIColor colorWithHex:themeOrangeString];
+        self.timeLab = [[UILabel alloc]initWithFrame:CGRectMake(self.nameLab.frame.origin.x, self.nameLab.frame.origin.y + self.nameLab.frame.size.height, 100, CommentNameLabHeight)];
+        self.timeLab.textColor = [UIColor colorWithHex:alreadyReadString];
         self.timeLab.textAlignment = NSTextAlignmentLeft;
-        self.timeLab.font = [UIFont systemFontOfSize:CommentContentFontSize];
+        self.timeLab.font = [UIFont systemFontOfSize:12];
         self.timeLab.numberOfLines = 0;
         self.timeLab.lineBreakMode = NSLineBreakByTruncatingTail;
         [self.cellView addSubview:self.timeLab];
     }
     if (!self.contentLab) {
-        self.contentLab = [[UILabel alloc]initWithFrame:CGRectMake(10, self.nameLab.frame.origin.y + self.nameLab.frame.size.height + 10, self.nameLab.frame.size.width, 30)];
+        self.contentLab = [[UILabel alloc]initWithFrame:CGRectMake(10, self.avatorIV.frame.origin.y + self.avatorIV.frame.size.height + 10, self.nameLab.frame.size.width, 30)];
         self.contentLab.font = [UIFont systemFontOfSize:CommentContentFontSize];
         self.contentLab.textColor = [UIColor colorWithRed:100.f/255 green:100.f/255 blue:100.f/255 alpha:1];
         self.contentLab.numberOfLines = 0;
@@ -89,7 +89,7 @@ static CGFloat slideSpace = 70;//滑动距离 显示/隐藏 置顶 删除 按钮
         [self.cellView addSubview:self.contentLab];
     }
     if (!self.unlikeBtn) {
-        self.unlikeBtn = [[UIButton alloc]initWithFrame:CGRectMake(screenWidth - CommentLikeBtnHeight - 10, 10, CommentLikeBtnHeight, CommentLikeBtnHeight)];
+        self.unlikeBtn = [[UIButton alloc]initWithFrame:CGRectMake(screenWidth - CommentLikeBtnHeight - 10, 25, CommentLikeBtnHeight, CommentLikeBtnHeight)];
         [self.unlikeBtn addTarget:self action:@selector(clickedUnlikeButton:) forControlEvents:UIControlEventTouchUpInside];
         [self.cellView addSubview:self.unlikeBtn];
         
@@ -99,11 +99,12 @@ static CGFloat slideSpace = 70;//滑动距离 显示/隐藏 置顶 删除 按钮
         
         self.unlikeLab = [[UILabel alloc]initWithFrame:CGRectMake(self.unlikeIV.frame.origin.x + self.unlikeIV.frame.size.width, self.unlikeIV.frame.origin.y, 0, self.unlikeIV.frame.size.height)];
         self.unlikeLab.font = [UIFont systemFontOfSize:16];
+        self.unlikeLab.textColor = [UIColor colorWithHex:themeOrangeString];
         self.unlikeLab.textAlignment = NSTextAlignmentCenter;
         [self.unlikeBtn addSubview:self.unlikeLab];
     }
     if (!self.likeBtn) {
-        self.likeBtn = [[UIButton alloc]initWithFrame:CGRectMake(screenWidth - (CommentLikeBtnHeight + 10) * 2, 10, CommentLikeBtnHeight, CommentLikeBtnHeight)];
+        self.likeBtn = [[UIButton alloc]initWithFrame:CGRectMake(screenWidth - (CommentLikeBtnHeight + 10) * 2, 25, CommentLikeBtnHeight, CommentLikeBtnHeight)];
         [self.likeBtn addTarget:self action:@selector(clickedLikeButton:) forControlEvents:UIControlEventTouchUpInside];
         [self.cellView addSubview:self.likeBtn];
         
@@ -113,6 +114,7 @@ static CGFloat slideSpace = 70;//滑动距离 显示/隐藏 置顶 删除 按钮
         
         self.likeLab = [[UILabel alloc]initWithFrame:CGRectMake(self.likeIV.frame.origin.x + self.likeIV.frame.size.width, self.likeIV.frame.origin.y, 0, self.likeIV.frame.size.height)];
         self.likeLab.font = [UIFont systemFontOfSize:16];
+        self.likeLab.textColor = [UIColor colorWithHex:themeOrangeString];
         self.likeLab.textAlignment = NSTextAlignmentCenter;
         [self.likeBtn addSubview:self.likeLab];
     }
@@ -215,33 +217,36 @@ static CGFloat slideSpace = 70;//滑动距离 显示/隐藏 置顶 删除 按钮
     self.nameLab.text = user.phoneNum;
     self.nameLab.frame = CGRectMake(self.avatorIV.frame.origin.x + self.avatorIV.frame.size.width + 10, 10, model.nameWidth, CommentNameLabHeight);
     
+    self.timeLab.text = model.time;
+    self.timeLab.frame = CGRectMake(self.nameLab.frame.origin.x, self.nameLab.frame.origin.y + self.nameLab.frame.size.height, model.timeWidth, CommentNameLabHeight);
+    
     CGFloat tempHeight = model.contentOriginHeight;
     if (model.isFold) {
         tempHeight = model.contentHeight;
     }
     self.contentLab.text = model.text;
-    self.contentLab.frame = CGRectMake(self.nameLab.frame.origin.x, self.nameLab.frame.origin.y + self.nameLab.frame.size.height + 10, screenWidth - CommentAvatorIVWidth - 10 * 3, tempHeight);
+    self.contentLab.frame = CGRectMake(10, self.avatorIV.frame.origin.y + self.avatorIV.frame.size.height + 10, screenWidth - 10 * 2, tempHeight);
     
     if (model.downCount != 0) {
         NSString* unlikeStr = [NSString stringWithFormat:@"%ld", (long)model.downCount];
         self.unlikeLab.text = unlikeStr;
         self.unlikeLab.frame = CGRectMake(CommentLikeBtnHeight, 0, model.unlikeWidth, CommentLikeBtnHeight);
-        self.unlikeBtn.frame = CGRectMake(screenWidth - 10 - CommentLikeBtnHeight - self.unlikeLab.frame.size.width, 10, CommentLikeBtnHeight + self.unlikeLab.frame.size.width, CommentLikeBtnHeight);
+        self.unlikeBtn.frame = CGRectMake(screenWidth - 10 - CommentLikeBtnHeight - self.unlikeLab.frame.size.width, 25, CommentLikeBtnHeight + self.unlikeLab.frame.size.width, CommentLikeBtnHeight);
     }else {
         self.unlikeLab.text = @"";
         self.unlikeLab.frame = CGRectMake(self.likeIV.frame.origin.x + self.likeIV.frame.size.width, 0, 0, CommentLikeBtnHeight);
-        self.unlikeBtn.frame = CGRectMake(screenWidth - 10 - CommentLikeBtnHeight, 10, CommentLikeBtnHeight, CommentLikeBtnHeight);
+        self.unlikeBtn.frame = CGRectMake(screenWidth - 10 - CommentLikeBtnHeight, 25, CommentLikeBtnHeight, CommentLikeBtnHeight);
     }
     
     if (model.upCount != 0) {
         NSString* likeStr = [NSString stringWithFormat:@"%ld", (long)model.upCount];
         self.likeLab.text = likeStr;
         self.likeLab.frame = CGRectMake(CommentLikeBtnHeight, 0, model.likeWidth, CommentLikeBtnHeight);
-        self.likeBtn.frame = CGRectMake(screenWidth - 10 * 2 - self.unlikeBtn.frame.size.width - CommentLikeBtnHeight - self.likeLab.frame.size.width, 10, CommentLikeBtnHeight + self.likeLab.frame.size.width, CommentLikeBtnHeight);
+        self.likeBtn.frame = CGRectMake(screenWidth - 10 * 2 - self.unlikeBtn.frame.size.width - CommentLikeBtnHeight - self.likeLab.frame.size.width, 25, CommentLikeBtnHeight + self.likeLab.frame.size.width, CommentLikeBtnHeight);
     }else {
         self.likeLab.text = @"";
         self.likeLab.frame = CGRectMake(self.likeIV.frame.origin.x + self.likeIV.frame.size.width, 0, 0, CommentLikeBtnHeight);
-        self.likeBtn.frame = CGRectMake(screenWidth - 10 * 2 - self.unlikeBtn.frame.size.width - CommentLikeBtnHeight, 10, CommentLikeBtnHeight, CommentLikeBtnHeight);
+        self.likeBtn.frame = CGRectMake(screenWidth - 10 * 2 - self.unlikeBtn.frame.size.width - CommentLikeBtnHeight, 25, CommentLikeBtnHeight, CommentLikeBtnHeight);
     }
     if (model.isUp) {
         self.likeIV.image = [UIImage imageNamed:@"commentLike_Selected"];
@@ -252,14 +257,6 @@ static CGFloat slideSpace = 70;//滑动距离 显示/隐藏 置顶 删除 按钮
         self.unlikeIV.image = [UIImage imageNamed:@"commentUnlike_Selected"];
     }else {
         self.unlikeIV.image = [UIImage imageNamed:@"commentUnlike"];
-    }
-    
-    self.timeLab.text = model.time;
-    CGFloat maxTimeWidth = self.likeBtn.frame.origin.x - self.nameLab.frame.origin.x - self.nameLab.frame.size.width - 10 * 2;
-    if (model.timeWidth > maxTimeWidth) {
-        self.timeLab.frame = CGRectMake(self.nameLab.frame.origin.x + self.nameLab.frame.size.width + 10, self.nameLab.frame.origin.y, maxTimeWidth, CommentNameLabHeight);
-    }else {
-        self.timeLab.frame = CGRectMake(self.nameLab.frame.origin.x + self.nameLab.frame.size.width + 10, self.nameLab.frame.origin.y, model.timeWidth, CommentNameLabHeight);
     }
 }
 

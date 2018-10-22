@@ -18,7 +18,7 @@ CGFloat const FSActionSheetItemTitleFontSize  = 16;     ///< 选项文字字体�
 CGFloat const FSActionSheetItemContentSpacing = 5;      ///< 选项图片和文字的间距
 // color
 NSString * const FSActionSheetTitleColor           = @"#888888"; ///< 标题颜色
-NSString * const FSActionSheetBackColor            = @"#E8E8ED"; ///< 背景颜色
+NSString * const FSActionSheetBackColor            = @"#FBFBFE";//@"#E8E8ED"; ///< 背景颜色
 NSString * const FSActionSheetRowNormalColor       = @"#FBFBFE"; ///< 单元格背景颜色
 NSString * const FSActionSheetRowHighlightedColor  = @"#F1F1F5"; ///< 选中高亮颜色
 NSString * const FSActionSheetRowTopLineColor      = @"#D7D7D8"; ///< 单元格顶部线条颜色

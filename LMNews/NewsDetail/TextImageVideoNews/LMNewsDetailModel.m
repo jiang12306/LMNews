@@ -8,8 +8,6 @@
 
 #import "LMNewsDetailModel.h"
 
-
-
 @implementation LMCommentModel
 
 +(void)caculateCommentLabelHeightWithText:(NSString *)text maxWidth:(CGFloat)maxWidth maxLines:(NSInteger)maxLines font:(UIFont *)font block:(LMCommentModelBlock)block {
@@ -80,6 +78,17 @@
     model.imgHeight = self.imgHeight;
     model.cellHeight = self.cellHeight;
     return model;
+}
+
+
++(CGFloat)caculateTextViewHeightWithText:(NSAttributedString *)text maxWidth:(CGFloat)maxWidth font:(UIFont* )font {
+    UITextView* textView = [[UITextView alloc]initWithFrame:CGRectMake(0, 0, maxWidth, 0)];
+    textView.font = font;
+    textView.editable = NO;
+    textView.scrollEnabled = NO;
+    textView.attributedText = text;
+    CGSize tvSize = [textView sizeThatFits:CGSizeMake(maxWidth, CGFLOAT_MAX)];
+    return tvSize.height;
 }
 
 @end

@@ -10,6 +10,8 @@
 #import "LMRecommendViewController.h"
 #import "LMHomeRightBarButtonItemView.h"
 #import "LMMyMessageViewController.h"
+#import "LMHomeNavigationBarView.h"
+#import "LMTool.h"
 
 @interface LMHomeNewsViewController () <UIScrollViewDelegate>
 
@@ -32,12 +34,22 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    UILabel *navTitleLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 150, 40)];
-    navTitleLabel.font = [UIFont boldSystemFontOfSize:25];
+    self.fd_prefersNavigationBarHidden = YES;
+    
+    CGFloat statusBarHeight = 20;
+    if ([LMTool isIPhoneX]) {
+        statusBarHeight = 44;
+    }
+    UIView* naviBarView = [[LMHomeNavigationBarView alloc]init];
+    [self.view addSubview:naviBarView];
+    
+    UILabel *navTitleLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 100, naviBarView.frame.size.height - statusBarHeight)];
+    navTitleLabel.font = [UIFont boldSystemFontOfSize:20];
     navTitleLabel.textColor = [UIColor colorWithHex:themeOrangeString];
     navTitleLabel.textAlignment = NSTextAlignmentCenter;
     navTitleLabel.text = @"奇闻";
-    self.navigationItem.titleView = navTitleLabel;
+    [naviBarView addSubview:navTitleLabel];
+    navTitleLabel.center = CGPointMake(naviBarView.frame.size.width / 2, naviBarView.frame.size.height / 2 + statusBarHeight / 2);
     
     __weak LMHomeNewsViewController* weakSelf = self;
     LMHomeRightBarButtonItemView* rightItem = [[LMHomeRightBarButtonItemView alloc]init];
@@ -45,12 +57,14 @@
         LMMyMessageViewController* messageVC = [[LMMyMessageViewController alloc]init];
         [weakSelf.navigationController pushViewController:messageVC animated:YES];
     };
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc]initWithCustomView:rightItem];
+    [naviBarView addSubview:rightItem];
+    rightItem.center = CGPointMake(naviBarView.frame.size.width - 30, navTitleLabel.center.y);
+    
     
     //取未读消息
     [self loadSystemMessageData];
     
-    self.titleBar = [[UIView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 40)];
+    self.titleBar = [[UIView alloc]initWithFrame:CGRectMake(0, naviBarView.frame.origin.y + naviBarView.frame.size.height, self.view.frame.size.width, 30)];
     self.titleBar.backgroundColor = [UIColor whiteColor];
     [self.view addSubview:self.titleBar];
     
@@ -96,7 +110,9 @@
     [self.titleBar addSubview:self.lineView];
     self.lineView.center = CGPointMake(self.recommendBtn.center.x, self.lineView.center.y);
     
+    
     self.currentType = ListTypeTRecommend;
+    [self clickedTypeButton:self.recommendBtn];
     
     
     //
@@ -244,11 +260,11 @@
     if (scrollView == self.scrollView) {
         int page = scrollView.contentOffset.x/CGRectGetWidth(self.view.frame);
         if (page == 0) {
-            self.currentType = ListTypeTHot;
+            [self clickedTypeButton:self.hotBtn];
         }else if (page == 1) {
-            self.currentType = ListTypeTRecommend;
+            [self clickedTypeButton:self.recommendBtn];
         }else if (page == 2) {
-            self.currentType = ListTypeTFollow;
+            [self clickedTypeButton:self.followBtn];
         }
     }
 }

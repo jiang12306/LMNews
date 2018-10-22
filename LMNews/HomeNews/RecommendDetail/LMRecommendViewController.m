@@ -18,6 +18,8 @@
 #import "LMRecommendModel.h"
 #import "LMNewsDetailViewController.h"
 #import "LMZhuanTiDetailViewController.h"
+#import "LMImagesNewsDetailViewController.h"
+#import "LMHomeNavigationBarView.h"
 
 @interface LMRecommendViewController () <UITableViewDataSource, UITableViewDelegate, LMBaseRefreshTableViewDelegate>
 
@@ -42,13 +44,13 @@ static NSString* listCellIdentifier = @"listCellIdentifier";
     
     CGFloat screenHeight = [UIScreen mainScreen].bounds.size.height;
     CGFloat tabBarHeight = 49;
-    CGFloat naviBarHeight = 64 + 40;
+    CGFloat naviBarHeight = [LMHomeNavigationBarView getHomeNavigationBarViewHeight];
+    CGFloat totalNaviHeight = naviBarHeight + 30;
     if ([LMTool isIPhoneX]) {
         tabBarHeight = 83;
-        naviBarHeight = 88 + 40;
     }
     
-    self.tableView = [[LMBaseRefreshTableView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, screenHeight - tabBarHeight - naviBarHeight) style:UITableViewStyleGrouped];
+    self.tableView = [[LMBaseRefreshTableView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, screenHeight - tabBarHeight - totalNaviHeight) style:UITableViewStyleGrouped];
     if (@available(iOS 11.0, *)) {
         self.tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
     }else {
@@ -66,7 +68,7 @@ static NSString* listCellIdentifier = @"listCellIdentifier";
     [self.tableView registerClass:[LMRecommendListTableViewCell class] forCellReuseIdentifier:listCellIdentifier];
     [self.view addSubview:self.tableView];
     
-    UIView* headerView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 5)];
+    UIView* headerView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 2)];
     headerView.backgroundColor = [UIColor clearColor];
     self.tableView.tableHeaderView = headerView;
     
@@ -110,7 +112,7 @@ static NSString* listCellIdentifier = @"listCellIdentifier";
                     }else {
                         self.isEnd = NO;
                     }
-                    BOOL shouldReload = YES;
+//                    BOOL shouldReload = YES;
                     if (arr != nil && arr.count > 0) {
                         if (self.page == 0) {
                             [self.dataArray removeAllObjects];
@@ -134,9 +136,9 @@ static NSString* listCellIdentifier = @"listCellIdentifier";
                                     [self.dataArray insertObjects:modelArr atIndexes:indexSet];
                                     [self.tableView insertSections:indexSet withRowAnimation:UITableViewRowAnimationNone];
                                     
-                                    shouldReload = NO;
-                                    NSIndexPath* indexPath = [NSIndexPath indexPathForRow:0 inSection:modelArr.count];
-                                    [self.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionTop animated:NO];
+//                                    shouldReload = NO;
+//                                    NSIndexPath* indexPath = [NSIndexPath indexPathForRow:0 inSection:modelArr.count];
+//                                    [self.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionTop animated:NO];
                                 }
                             }else {
                                 [self.dataArray addObjectsFromArray:modelArr];
@@ -154,9 +156,9 @@ static NSString* listCellIdentifier = @"listCellIdentifier";
                     
                     self.page ++;
                     
-                    if (shouldReload){
+//                    if (shouldReload){
                         [self.tableView reloadData];
-                    }
+//                    }
                 }
             }
         } @catch (NSException *exception) {
@@ -208,7 +210,7 @@ static NSString* listCellIdentifier = @"listCellIdentifier";
 }
 
 -(UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section {
-    UIView* vi = [[UIView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 5)];
+    UIView* vi = [[UIView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 2)];
     return vi;
 }
 
@@ -217,7 +219,7 @@ static NSString* listCellIdentifier = @"listCellIdentifier";
 }
 
 -(CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section {
-    return 5;
+    return 2;
 }
 
 -(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
@@ -243,6 +245,7 @@ static NSString* listCellIdentifier = @"listCellIdentifier";
         if (cell == nil) {
             cell = [[LMRecommendImageTableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:imageCellIdentifier];
         }
+        [cell showLineView:NO];
         [cell setupContentWithModel:model];
         
         return cell;
@@ -251,6 +254,7 @@ static NSString* listCellIdentifier = @"listCellIdentifier";
         if (cell == nil) {
             cell = [[LMRecommendVideoTableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:videoCellIdentifier];
         }
+        [cell showLineView:NO];
         [cell setupContentWithModel:model];
         
         return cell;
@@ -259,6 +263,7 @@ static NSString* listCellIdentifier = @"listCellIdentifier";
         if (cell == nil) {
             cell = [[LMRecommendImagesTableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:imagesCellIdentifier];
         }
+        [cell showLineView:NO];
         [cell setupContentWithModel:model];
         
         return cell;
@@ -267,6 +272,7 @@ static NSString* listCellIdentifier = @"listCellIdentifier";
         if (cell == nil) {
             cell = [[LMRecommendTextTableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:textCellIdentifier];
         }
+        [cell showLineView:NO];
         [cell setupContentWithModel:model];
         
         return cell;
@@ -275,6 +281,7 @@ static NSString* listCellIdentifier = @"listCellIdentifier";
         if (cell == nil) {
             cell = [[LMRecommendCollectionTableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:collectionCellIdentifier];
         }
+        [cell showLineView:NO];
         [cell setupContentWithModel:model];
         
         __weak LMRecommendViewController* weakSelf = self;
@@ -283,13 +290,19 @@ static NSString* listCellIdentifier = @"listCellIdentifier";
             NSArray* tempArticleArr = zhuanTi.list;
             @try {
                 LMArticleSimple* tempSimp = [tempArticleArr objectAtIndex:index];
-                LMNewsDetailViewController* newsDetailVC = [[LMNewsDetailViewController alloc]init];
-                newsDetailVC.newsId = tempSimp.articleId;
-                [weakSelf.navigationController pushViewController:newsDetailVC animated:YES];
-                
+                model.alreadyRead = YES;
                 [[LMDatabaseTool sharedDatabaseTool] setArticleWithArticleId:tempSimp.articleId isRead:YES];
                 
-                model.alreadyRead = YES;
+                if (tempSimp.isAllPic) {
+                    LMImagesNewsDetailViewController* imagesDetailVC = [[LMImagesNewsDetailViewController alloc]init];
+                    imagesDetailVC.newsId = tempSimp.articleId;
+                    [weakSelf.navigationController pushViewController:imagesDetailVC animated:YES];
+                }else {
+                    LMNewsDetailViewController* newsDetailVC = [[LMNewsDetailViewController alloc]init];
+                    newsDetailVC.newsId = tempSimp.articleId;
+                    [weakSelf.navigationController pushViewController:newsDetailVC animated:YES];
+                }
+                
                 [weakSelf.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
             } @catch (NSException *exception) {
                 
@@ -304,6 +317,7 @@ static NSString* listCellIdentifier = @"listCellIdentifier";
         if (cell == nil) {
             cell = [[LMRecommendListTableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:listCellIdentifier];
         }
+        [cell showLineView:NO];
         [cell setupContentWithModel:model];
         
         __weak LMRecommendViewController* weakSelf = self;
@@ -312,13 +326,20 @@ static NSString* listCellIdentifier = @"listCellIdentifier";
             NSArray* tempArticleArr = zhuanTi.list;
             @try {
                 LMArticleSimple* tempSimp = [tempArticleArr objectAtIndex:index];
-                LMNewsDetailViewController* newsDetailVC = [[LMNewsDetailViewController alloc]init];
-                newsDetailVC.newsId = tempSimp.articleId;
-                [weakSelf.navigationController pushViewController:newsDetailVC animated:YES];
-                
+                model.alreadyRead = YES;
+                //
                 [[LMDatabaseTool sharedDatabaseTool] setArticleWithArticleId:tempSimp.articleId isRead:YES];
                 
-                model.alreadyRead = YES;
+                if (tempSimp.isAllPic) {
+                    LMImagesNewsDetailViewController* imagesDetailVC = [[LMImagesNewsDetailViewController alloc]init];
+                    imagesDetailVC.newsId = tempSimp.articleId;
+                    [weakSelf.navigationController pushViewController:imagesDetailVC animated:YES];
+                }else {
+                    LMNewsDetailViewController* newsDetailVC = [[LMNewsDetailViewController alloc]init];
+                    newsDetailVC.newsId = tempSimp.articleId;
+                    [weakSelf.navigationController pushViewController:newsDetailVC animated:YES];
+                }
+                
                 [weakSelf.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
             } @catch (NSException *exception) {
                 
@@ -332,20 +353,38 @@ static NSString* listCellIdentifier = @"listCellIdentifier";
 }
 
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    [self.tableView deselectRowAtIndexPath:indexPath animated:NO];
-    
     NSInteger section = indexPath.section;
     LMRecommendModel* model = [self.dataArray objectAtIndex:section];
     
+    
+    /*//以id为181做测试
+    LMImagesNewsDetailViewController* detail = [[LMImagesNewsDetailViewController alloc]init];
+    LMArticleSimple* articleSimple = model.article;
+    detail.newsId = 181;//articleSimple.articleId;
+    [self.navigationController pushViewController:detail animated:YES];
+    return;
+    */
+    
+    
+    
+    [self.tableView deselectRowAtIndexPath:indexPath animated:NO];
+    
     if (model.articleType == 1) {//文章
-        LMNewsDetailViewController* newsDetailVC = [[LMNewsDetailViewController alloc]init];
         LMArticleSimple* articleSimple = model.article;
-        newsDetailVC.newsId = articleSimple.articleId;
-        [self.navigationController pushViewController:newsDetailVC animated:YES];
-        
+        model.alreadyRead = YES;
+        //
         [[LMDatabaseTool sharedDatabaseTool] setArticleWithArticleId:articleSimple.articleId isRead:YES];
         
-        model.alreadyRead = YES;
+        if (articleSimple.isAllPic) {
+            LMImagesNewsDetailViewController* imagesDetailVC = [[LMImagesNewsDetailViewController alloc]init];
+            imagesDetailVC.newsId = articleSimple.articleId;
+            [self.navigationController pushViewController:imagesDetailVC animated:YES];
+        }else {
+            LMNewsDetailViewController* newsDetailVC = [[LMNewsDetailViewController alloc]init];
+            newsDetailVC.newsId = articleSimple.articleId;
+            [self.navigationController pushViewController:newsDetailVC animated:YES];
+        }
+        
         [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
     }else if (model.articleType == 2) {//专题
         LMZhuanTiDetailViewController* zhuanTiDetailVC = [[LMZhuanTiDetailViewController alloc]init];

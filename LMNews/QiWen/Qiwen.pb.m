@@ -7189,6 +7189,7 @@ static ArticleSimpleList* defaultArticleSimpleListInstance = nil;
 @property UInt64 t;
 @property UInt64 commentCount;
 @property UInt64 picsCount;
+@property UInt32 isAllPic;
 @end
 
 @implementation ArticleSimple
@@ -7237,6 +7238,13 @@ static ArticleSimpleList* defaultArticleSimpleListInstance = nil;
   hasPicsCount_ = !!_value_;
 }
 @synthesize picsCount;
+- (BOOL) hasIsAllPic {
+  return !!hasIsAllPic_;
+}
+- (void) setHasIsAllPic:(BOOL) _value_ {
+  hasIsAllPic_ = !!_value_;
+}
+@synthesize isAllPic;
 - (instancetype) init {
   if ((self = [super init])) {
     self.title = @"";
@@ -7245,6 +7253,7 @@ static ArticleSimpleList* defaultArticleSimpleListInstance = nil;
     self.t = 0L;
     self.commentCount = 0L;
     self.picsCount = 0L;
+    self.isAllPic = 0;
   }
   return self;
 }
@@ -7302,6 +7311,9 @@ static ArticleSimple* defaultArticleSimpleInstance = nil;
   if (self.hasPicsCount) {
     [output writeUInt64:11 value:self.picsCount];
   }
+  if (self.hasIsAllPic) {
+    [output writeUInt32:12 value:self.isAllPic];
+  }
   [self.unknownFields writeToCodedOutputStream:output];
 }
 - (SInt32) serializedSize {
@@ -7331,6 +7343,9 @@ static ArticleSimple* defaultArticleSimpleInstance = nil;
   }
   if (self.hasPicsCount) {
     size_ += computeUInt64Size(11, self.picsCount);
+  }
+  if (self.hasIsAllPic) {
+    size_ += computeUInt32Size(12, self.isAllPic);
   }
   size_ += self.unknownFields.serializedSize;
   memoizedSerializedSize = size_;
@@ -7394,6 +7409,9 @@ static ArticleSimple* defaultArticleSimpleInstance = nil;
   if (self.hasPicsCount) {
     [output appendFormat:@"%@%@: %@\n", indent, @"picsCount", [NSNumber numberWithLongLong:self.picsCount]];
   }
+  if (self.hasIsAllPic) {
+    [output appendFormat:@"%@%@: %@\n", indent, @"isAllPic", [NSNumber numberWithInteger:self.isAllPic]];
+  }
   [self.unknownFields writeDescriptionTo:output withIndent:indent];
 }
 - (void) storeInDictionary:(NSMutableDictionary *)dictionary {
@@ -7422,6 +7440,9 @@ static ArticleSimple* defaultArticleSimpleInstance = nil;
   if (self.hasPicsCount) {
     [dictionary setObject: [NSNumber numberWithLongLong:self.picsCount] forKey: @"picsCount"];
   }
+  if (self.hasIsAllPic) {
+    [dictionary setObject: [NSNumber numberWithInteger:self.isAllPic] forKey: @"isAllPic"];
+  }
   [self.unknownFields storeInDictionary:dictionary];
 }
 - (BOOL) isEqual:(id)other {
@@ -7446,6 +7467,8 @@ static ArticleSimple* defaultArticleSimpleInstance = nil;
       (!self.hasCommentCount || self.commentCount == otherMessage.commentCount) &&
       self.hasPicsCount == otherMessage.hasPicsCount &&
       (!self.hasPicsCount || self.picsCount == otherMessage.picsCount) &&
+      self.hasIsAllPic == otherMessage.hasIsAllPic &&
+      (!self.hasIsAllPic || self.isAllPic == otherMessage.isAllPic) &&
       (self.unknownFields == otherMessage.unknownFields || (self.unknownFields != nil && [self.unknownFields isEqual:otherMessage.unknownFields]));
 }
 - (NSUInteger) hash {
@@ -7470,6 +7493,9 @@ static ArticleSimple* defaultArticleSimpleInstance = nil;
   }
   if (self.hasPicsCount) {
     hashCode = hashCode * 31 + [[NSNumber numberWithLongLong:self.picsCount] hash];
+  }
+  if (self.hasIsAllPic) {
+    hashCode = hashCode * 31 + [[NSNumber numberWithInteger:self.isAllPic] hash];
   }
   hashCode = hashCode * 31 + [self.unknownFields hash];
   return hashCode;
@@ -7539,6 +7565,9 @@ static ArticleSimple* defaultArticleSimpleInstance = nil;
   if (other.hasPicsCount) {
     [self setPicsCount:other.picsCount];
   }
+  if (other.hasIsAllPic) {
+    [self setIsAllPic:other.isAllPic];
+  }
   [self mergeUnknownFields:other.unknownFields];
   return self;
 }
@@ -7593,6 +7622,10 @@ static ArticleSimple* defaultArticleSimpleInstance = nil;
       }
       case 88: {
         [self setPicsCount:[input readUInt64]];
+        break;
+      }
+      case 96: {
+        [self setIsAllPic:[input readUInt32]];
         break;
       }
     }
@@ -7727,6 +7760,22 @@ static ArticleSimple* defaultArticleSimpleInstance = nil;
 - (ArticleSimpleBuilder*) clearPicsCount {
   resultArticleSimple.hasPicsCount = NO;
   resultArticleSimple.picsCount = 0L;
+  return self;
+}
+- (BOOL) hasIsAllPic {
+  return resultArticleSimple.hasIsAllPic;
+}
+- (UInt32) isAllPic {
+  return resultArticleSimple.isAllPic;
+}
+- (ArticleSimpleBuilder*) setIsAllPic:(UInt32) value {
+  resultArticleSimple.hasIsAllPic = YES;
+  resultArticleSimple.isAllPic = value;
+  return self;
+}
+- (ArticleSimpleBuilder*) clearIsAllPic {
+  resultArticleSimple.hasIsAllPic = NO;
+  resultArticleSimple.isAllPic = 0;
   return self;
 }
 @end

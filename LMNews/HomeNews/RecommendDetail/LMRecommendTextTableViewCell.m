@@ -41,7 +41,7 @@
         [self.contentView addSubview:self.commentCountLab];
     }
     if (!self.commentIV) {
-        self.commentIV = [[UIImageView alloc]initWithFrame:CGRectMake(self.commentCountLab.frame.origin.x - 20 - 5, 10, 20, 18)];
+        self.commentIV = [[UIImageView alloc]initWithFrame:CGRectMake(self.commentCountLab.frame.origin.x - 20 - 5, 10, 20, 20)];
         self.commentIV.image = [UIImage imageNamed:@"comment_Bubble"];
         [self.contentView addSubview:self.commentIV];
     }
@@ -62,7 +62,7 @@
         [self.contentView addSubview:self.detailLab];
     }
     if (!self.mediaNameLab) {
-        self.mediaNameLab = [[UILabel alloc]initWithFrame:CGRectMake(10, self.detailLab.frame.origin.y + self.detailLab.frame.size.height + 10, screenWidth - 10 * 2, 20)];
+        self.mediaNameLab = [[UILabel alloc]initWithFrame:CGRectMake(10, self.detailLab.frame.origin.y + self.detailLab.frame.size.height + 10, screenWidth - 10 * 2, 15)];
         self.mediaNameLab.font = [UIFont systemFontOfSize:mediaNameFontSize];
         self.mediaNameLab.textColor = [UIColor colorWithHex:alreadyReadString];
         self.mediaNameLab.numberOfLines = 0;
@@ -81,9 +81,13 @@
     if (model.showTime) {
         self.timeLab.hidden = NO;
         self.timeLab.text = model.time;
-        self.commentIV.hidden = NO;
-        self.commentCountLab.hidden = NO;
-        self.commentCountLab.text = model.commentCountStr;
+        if (model.commentCountStr != nil && model.commentCountStr.length > 0) {
+            self.commentIV.hidden = NO;
+            self.commentCountLab.hidden = NO;
+            self.commentCountLab.text = model.commentCountStr;
+            self.commentCountLab.frame = CGRectMake(screenWidth - 10 - model.commentWidth, 10, model.commentWidth, 20);
+            self.commentIV.frame = CGRectMake(self.commentCountLab.frame.origin.x - 20 - 5, 10, 20, 20);
+        }
         startY = self.timeLab.frame.origin.y + self.timeLab.frame.size.height + 10;
     }
     
@@ -102,7 +106,7 @@
     if (model.showMediaName) {
         self.mediaNameLab.hidden = NO;
         self.mediaNameLab.text = model.mediaName;
-        self.mediaNameLab.frame = CGRectMake(10, self.detailLab.frame.origin.y + self.detailLab.frame.size.height + 10, screenWidth - 10 * 2, 20);
+        self.mediaNameLab.frame = CGRectMake(10, self.detailLab.frame.origin.y + self.detailLab.frame.size.height + 10, screenWidth - 10 * 2, 15);
     }
     if (model.alreadyRead) {
         self.titleLab.textColor = [UIColor colorWithHex:alreadyReadString];

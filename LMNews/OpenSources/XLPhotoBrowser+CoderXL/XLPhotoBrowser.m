@@ -395,7 +395,7 @@
     self.saveButton.frame = CGRectMake(30, self.xl_height - 70, 50, 25);
     self.indexLabel.bounds = CGRectMake(0, 0, 80, 30);
     self.indexLabel.xl_centerX = self.xl_width * 0.5;
-    self.indexLabel.xl_centerY = 35;
+    self.indexLabel.xl_centerY = rect.size.height - 40;
     self.indexLabel.layer.cornerRadius = self.indexLabel.xl_height * 0.5;
     
     self.savaImageTipLabel.layer.cornerRadius = 5;

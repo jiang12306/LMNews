@@ -56,7 +56,7 @@
     self.phoneTF.backgroundColor = [UIColor whiteColor];
     self.phoneTF.layer.borderColor = [UIColor colorWithRed:140.f/255 green:140.f/255 blue:140.f/255 alpha:1].CGColor;
     self.phoneTF.layer.borderWidth = 1;
-    self.phoneTF.layer.cornerRadius = 1;
+    self.phoneTF.layer.cornerRadius = 5;
     self.phoneTF.layer.masksToBounds = YES;
     self.phoneTF.keyboardType = UIKeyboardTypeNumberPad;
     self.phoneTF.clearButtonMode = UITextFieldViewModeWhileEditing;
@@ -79,12 +79,15 @@
     self.codeTF = [[UITextField alloc]initWithFrame:CGRectMake(self.phoneTF.frame.origin.x, self.codeBtn.frame.origin.y, self.view.frame.size.width - self.codeBtn.frame.size.width - spaceX * 3, self.phoneTF.frame.size.height)];
     self.codeTF.backgroundColor = [UIColor whiteColor];
     self.codeTF.layer.borderWidth = 1;
-    self.codeTF.layer.cornerRadius = 1;
+    self.codeTF.layer.cornerRadius = 5;
     self.codeTF.layer.masksToBounds = YES;
     self.codeTF.layer.borderColor = [UIColor colorWithRed:140.f/255 green:140.f/255 blue:140.f/255 alpha:1].CGColor;
     self.codeTF.keyboardType = UIKeyboardTypeNumberPad;
     self.codeTF.clearButtonMode = UITextFieldViewModeWhileEditing;
-    self.codeTF.placeholder = @" 验证码";
+    self.codeTF.placeholder = @"验证码";
+    self.codeTF.leftViewMode = UITextFieldViewModeAlways;
+    UIView* codeLeftView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, 5, labHeight)];
+    self.codeTF.leftView = codeLeftView;
     [self.scrollView addSubview:self.codeTF];
     
     self.sendBtn = [[UIButton alloc]initWithFrame:CGRectMake(spaceX, self.codeTF.frame.origin.y + self.codeTF.frame.size.height + spaceY, self.view.frame.size.width - spaceX * 2, labHeight)];

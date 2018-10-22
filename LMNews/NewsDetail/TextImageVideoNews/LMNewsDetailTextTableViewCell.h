@@ -11,7 +11,7 @@
 
 @interface LMNewsDetailTextTableViewCell : LMBaseTableViewCell
 
-@property (nonatomic, strong) UILabel* textLab;
+@property (nonatomic, strong) UITextView* textView;
 
 -(void)setupTextContent:(LMNewsDetailModel* )model;
 

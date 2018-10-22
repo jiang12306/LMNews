@@ -1721,6 +1721,7 @@ NSString *NSStringFromDeviceOsType(DeviceOsType value);
 #define ArticleSimple_t @"t"
 #define ArticleSimple_comment_count @"commentCount"
 #define ArticleSimple_pics_count @"picsCount"
+#define ArticleSimple_is_all_pic @"isAllPic"
 @interface ArticleSimple : PBGeneratedMessage<GeneratedMessageProtocol> {
 @private
   BOOL hasT_:1;
@@ -1729,12 +1730,14 @@ NSString *NSStringFromDeviceOsType(DeviceOsType value);
   BOOL hasTitle_:1;
   BOOL hasSource_:1;
   BOOL hasArticleId_:1;
+  BOOL hasIsAllPic_:1;
   UInt64 t;
   UInt64 commentCount;
   UInt64 picsCount;
   NSString* title;
   Source* source;
   UInt32 articleId;
+  UInt32 isAllPic;
   NSMutableArray * picsArray;
 }
 - (BOOL) hasTitle;
@@ -1743,6 +1746,7 @@ NSString *NSStringFromDeviceOsType(DeviceOsType value);
 - (BOOL) hasT;
 - (BOOL) hasCommentCount;
 - (BOOL) hasPicsCount;
+- (BOOL) hasIsAllPic;
 @property (readonly, strong) NSString* title;
 @property (readonly) UInt32 articleId;
 @property (readonly, strong) NSArray<TextPicVideo*> * pics;
@@ -1750,6 +1754,7 @@ NSString *NSStringFromDeviceOsType(DeviceOsType value);
 @property (readonly) UInt64 t;
 @property (readonly) UInt64 commentCount;
 @property (readonly) UInt64 picsCount;
+@property (readonly) UInt32 isAllPic;
 - (TextPicVideo*)picsAtIndex:(NSUInteger)index;
 
 + (instancetype) defaultInstance;
@@ -1824,6 +1829,11 @@ NSString *NSStringFromDeviceOsType(DeviceOsType value);
 - (UInt64) picsCount;
 - (ArticleSimpleBuilder*) setPicsCount:(UInt64) value;
 - (ArticleSimpleBuilder*) clearPicsCount;
+
+- (BOOL) hasIsAllPic;
+- (UInt32) isAllPic;
+- (ArticleSimpleBuilder*) setIsAllPic:(UInt32) value;
+- (ArticleSimpleBuilder*) clearIsAllPic;
 @end
 
 #define Zhuanti_title @"title"

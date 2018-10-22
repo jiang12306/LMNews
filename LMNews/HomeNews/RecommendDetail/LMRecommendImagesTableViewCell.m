@@ -42,7 +42,7 @@
         [self.contentView addSubview:self.commentCountLab];
     }
     if (!self.commentIV) {
-        self.commentIV = [[UIImageView alloc]initWithFrame:CGRectMake(self.commentCountLab.frame.origin.x - 20 - 5, 10, 20, 18)];
+        self.commentIV = [[UIImageView alloc]initWithFrame:CGRectMake(self.commentCountLab.frame.origin.x - 20 - 5, 10, 20, 20)];
         self.commentIV.image = [UIImage imageNamed:@"comment_Bubble"];
         [self.contentView addSubview:self.commentIV];
     }
@@ -74,8 +74,16 @@
         self.contentIV2.clipsToBounds = YES;
         [self.contentView addSubview:self.contentIV2];
     }
+    if (!self.totalCountLab) {
+        self.totalCountLab = [[UILabel alloc]initWithFrame:CGRectMake(self.contentIV2.frame.size.width - 40, self.contentIV2.frame.size.height - 20, 40, 20)];
+        self.totalCountLab.backgroundColor = [UIColor colorWithRed:150 / 255.f green:150 / 255.f blue:150 / 255.f alpha:0.6];
+        self.totalCountLab.textAlignment = NSTextAlignmentCenter;
+        self.totalCountLab.font = [UIFont systemFontOfSize:mediaNameFontSize];
+        self.totalCountLab.textColor = [UIColor whiteColor];
+        [self.contentIV2 addSubview:self.totalCountLab];
+    }
     if (!self.mediaNameLab) {
-        self.mediaNameLab = [[UILabel alloc]initWithFrame:CGRectMake(10, self.contentIV1.frame.origin.y + self.contentIV1.frame.size.height + 10, screenWidth - 10 * 2, 20)];
+        self.mediaNameLab = [[UILabel alloc]initWithFrame:CGRectMake(10, self.contentIV1.frame.origin.y + self.contentIV1.frame.size.height + 10, screenWidth - 10 * 2, 15)];
         self.mediaNameLab.font = [UIFont systemFontOfSize:mediaNameFontSize];
         self.mediaNameLab.textColor = [UIColor colorWithHex:alreadyReadString];
         self.mediaNameLab.numberOfLines = 0;
@@ -94,9 +102,13 @@
     if (model.showTime) {
         self.timeLab.hidden = NO;
         self.timeLab.text = model.time;
-        self.commentIV.hidden = NO;
-        self.commentCountLab.hidden = NO;
-        self.commentCountLab.text = model.commentCountStr;
+        if (model.commentCountStr != nil && model.commentCountStr.length > 0) {
+            self.commentIV.hidden = NO;
+            self.commentCountLab.hidden = NO;
+            self.commentCountLab.text = model.commentCountStr;
+            self.commentCountLab.frame = CGRectMake(screenWidth - 10 - model.commentWidth, 10, model.commentWidth, 20);
+            self.commentIV.frame = CGRectMake(self.commentCountLab.frame.origin.x - 20 - 5, 10, 20, 20);
+        }
         startY = self.timeLab.frame.origin.y + self.timeLab.frame.size.height + 10;
     }
     
@@ -120,11 +132,18 @@
     NSURL* imgUrl2 = [NSURL URLWithString:model.url2];
     [self.contentIV2 sd_setImageWithURL:imgUrl2 placeholderImage:placeholderImage];
     
+    if (model.totalImageCount > 0) {
+        self.totalCountLab.hidden = NO;
+        self.totalCountLab.text = [NSString stringWithFormat:@"%ld张", model.totalImageCount];
+    }else {
+        self.totalCountLab.hidden = YES;
+    }
+    
     self.mediaNameLab.hidden = YES;
     if (model.showMediaName) {
         self.mediaNameLab.hidden = NO;
         self.mediaNameLab.text = model.mediaName;
-        self.mediaNameLab.frame = CGRectMake(10, self.contentIV1.frame.origin.y + self.contentIV1.frame.size.height + 10, screenWidth - 10 * 2, 20);
+        self.mediaNameLab.frame = CGRectMake(10, self.contentIV1.frame.origin.y + self.contentIV1.frame.size.height + 10, screenWidth - 10 * 2, 15);
     }
     if (model.alreadyRead) {
         self.titleLab.textColor = [UIColor colorWithHex:alreadyReadString];

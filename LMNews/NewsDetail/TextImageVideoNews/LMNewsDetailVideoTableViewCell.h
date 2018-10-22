@@ -13,6 +13,7 @@
 @interface LMNewsDetailVideoTableViewCell : LMBaseTableViewCell <WKUIDelegate, WKNavigationDelegate>
 
 @property (nonatomic, strong) WKWebView* webView;
+@property (nonatomic, strong) UITextView* textView;
 
 @property (nonatomic, strong) UIActivityIndicatorView* aiView;
 

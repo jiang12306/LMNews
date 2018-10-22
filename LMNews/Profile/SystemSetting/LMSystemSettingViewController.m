@@ -10,6 +10,8 @@
 #import "LMSystemSettingTableViewCell.h"
 #import "LMTool.h"
 #import "SDWebImageManager.h"
+#import "JPUSHService.h"
+#import <WebKit/WebKit.h>
 
 @interface LMSystemSettingViewController () <UITableViewDelegate, UITableViewDataSource, LMSystemSettingTableViewCellDelegate>
 
@@ -145,29 +147,71 @@ static NSString* cellIdentifier = @"cellIdentifier";
     if (row == 0) {
         [self showNetworkLoadingView];
         
-        //
+        __block NSInteger clearIndex = 0;
+        
+        //database memory
         [[LMDatabaseTool sharedDatabaseTool]deleteArticleAndZhuanTiOverDays:30];
         
+        //WKWebView cookie
+        if (@available(iOS 9.0, *)) {
+            NSDate* date = [NSDate distantPast];
+            NSSet* types = [NSSet setWithArray:@[WKWebsiteDataTypeDiskCache]];
+            [[WKWebsiteDataStore defaultDataStore] removeDataOfTypes:types modifiedSince:date completionHandler:^{
+                clearIndex ++;
+                if (clearIndex == 2) {
+                    [self showClearSucceedAlert];
+                }
+            }];
+        } else {
+            NSString* libraryPath = [NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) firstObject];
+            NSString* cookiesPath = [libraryPath stringByAppendingString:@"/Cookies"];
+            [[NSFileManager defaultManager] removeItemAtPath:cookiesPath error:nil];
+            clearIndex ++;
+            if (clearIndex == 2) {
+                [self showClearSucceedAlert];
+            }
+        }
+        
+        //SDWebImageCache
         SDWebImageManager* manager = [SDWebImageManager sharedManager];
         SDImageCache* imageCache = manager.imageCache;
         [imageCache clearMemory];
         [imageCache clearDiskOnCompletion:^{
-            self.memoryInt = 0;
-            LMSystemSettingTableViewCell* cell = [self.tableView cellForRowAtIndexPath:indexPath];
-            cell.contentLab.text = [NSString stringWithFormat:@"%.2fMB", ((float)self.memoryInt)/1024/1024];
-            
-            [self hideNetworkLoadingView];
-            
-            [self showMBProgressHUDWithText:@"清理完成"];
+            clearIndex ++;
+            if (clearIndex == 2) {
+                [self showClearSucceedAlert];
+            }
         }];
     }
+}
+
+-(void)showClearSucceedAlert {
+    self.memoryInt = 0;
+    LMSystemSettingTableViewCell* cell = [self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
+    cell.contentLab.text = [NSString stringWithFormat:@"%.2fMB", ((float)self.memoryInt)/1024/1024];
+    
+    [self hideNetworkLoadingView];
+    
+    [self showMBProgressHUDWithText:@"清理完成"];
 }
 
 #pragma mark -LMSystemSettingTableViewCellDelegate
 -(void)didClickSwitch:(BOOL)isOn systemSettingCell:(LMSystemSettingTableViewCell *)cell {
     self.isAlert = isOn;
     cell.contentSwitch.on = self.isAlert;
-    
+//    if (self.isAlert) {
+//        [JPUSHService setAlias:@"" completion:^(NSInteger iResCode, NSString *iAlias, NSInteger seq) {
+//
+//        } seq:100];
+//    }else {
+//        [JPUSHService deleteAlias:^(NSInteger iResCode, NSString *iAlias, NSInteger seq) {
+//            if (iResCode == 0) {
+//                [LMTool setupUserNotificatioinState:isOn];
+//            }else {
+//
+//            }
+//        } seq:100];
+//    }
     
     //
     [LMTool setupUserNotificatioinState:isOn];

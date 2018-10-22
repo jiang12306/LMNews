@@ -23,19 +23,19 @@
 
 -(void)setupTextLab {
     CGFloat screenWidth = [UIScreen mainScreen].bounds.size.width;
-    if (!self.textLab) {
-        self.textLab = [[UILabel alloc]initWithFrame:CGRectMake(10, 5, screenWidth - 10 * 2, 100)];
-        self.textLab.font = [UIFont systemFontOfSize:16];
-        self.textLab.numberOfLines = 0;
-        self.textLab.lineBreakMode = NSLineBreakByTruncatingTail;
-        [self.contentView addSubview:self.textLab];
+    if (!self.textView) {
+        self.textView = [[UITextView alloc]initWithFrame:CGRectMake(10, 5, screenWidth - 10 * 2, 100)];
+        self.textView.font = [UIFont systemFontOfSize:16];
+        self.textView.editable = NO;
+        self.textView.scrollEnabled = NO;
+        [self.contentView addSubview:self.textView];
     }
 }
 
 -(void)setupTextContent:(LMNewsDetailModel *)model {
     CGFloat screenWidth = [UIScreen mainScreen].bounds.size.width;
-    self.textLab.attributedText = model.text;
-    self.textLab.frame = CGRectMake(10, 10, screenWidth - 10 * 2, model.titleHeight);
+    self.textView.attributedText = model.text;
+    self.textView.frame = CGRectMake(10, 10, screenWidth - 10 * 2, model.titleHeight);
 }
 
 - (void)awakeFromNib {

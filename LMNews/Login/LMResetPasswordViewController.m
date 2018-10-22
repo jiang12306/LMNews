@@ -56,24 +56,30 @@
     
     self.pwdTF = [[UITextField alloc]initWithFrame:CGRectMake(spaceX, self.oldPwdTF.frame.origin.y + self.oldPwdTF.frame.size.height + spaceY, self.oldPwdTF.frame.size.width, labHeight)];
     self.pwdTF.backgroundColor = [UIColor whiteColor];
-    self.pwdTF.layer.cornerRadius = 1;
+    self.pwdTF.layer.cornerRadius = 5;
     self.pwdTF.layer.masksToBounds = YES;
     self.pwdTF.layer.borderWidth = 1;
     self.pwdTF.layer.borderColor = [UIColor colorWithRed:140.f/255 green:140.f/255 blue:140.f/255 alpha:1].CGColor;
     self.pwdTF.clearButtonMode = UITextFieldViewModeWhileEditing;
     self.pwdTF.secureTextEntry = YES;
-    self.pwdTF.placeholder = @" 输入新密码";
+    self.pwdTF.placeholder = @"输入新密码";
+    self.pwdTF.leftViewMode = UITextFieldViewModeAlways;
+    UIView* pwdLeftView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, 5, labHeight)];
+    self.pwdTF.leftView = pwdLeftView;
     [self.scrollView addSubview:self.pwdTF];
     
     self.conformTF = [[UITextField alloc]initWithFrame:CGRectMake(self.pwdTF.frame.origin.x, self.pwdTF.frame.origin.y + self.pwdTF.frame.size.height + spaceY, self.pwdTF.frame.size.width, self.pwdTF.frame.size.height)];
     self.conformTF.backgroundColor = [UIColor whiteColor];
-    self.conformTF.layer.cornerRadius = 1;
+    self.conformTF.layer.cornerRadius = 5;
     self.conformTF.layer.masksToBounds = YES;
     self.conformTF.layer.borderWidth = 1;
     self.conformTF.layer.borderColor = [UIColor colorWithRed:140.f/255 green:140.f/255 blue:140.f/255 alpha:1].CGColor;
     self.conformTF.clearButtonMode = UITextFieldViewModeWhileEditing;
     self.conformTF.secureTextEntry = YES;
-    self.conformTF.placeholder = @" 确认新密码";
+    self.conformTF.placeholder = @"确认新密码";
+    self.conformTF.leftViewMode = UITextFieldViewModeAlways;
+    UIView* conformLeftView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, 5, labHeight)];
+    self.conformTF.leftView = conformLeftView;
     [self.scrollView addSubview:self.conformTF];
     
     self.sendBtn = [[UIButton alloc]initWithFrame:CGRectMake(spaceX, self.conformTF.frame.origin.y + self.conformTF.frame.size.height + spaceY, self.view.frame.size.width - spaceX * 2, 40)];

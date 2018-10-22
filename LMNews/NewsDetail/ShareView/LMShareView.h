@@ -6,7 +6,7 @@
 //  Copyright © 2018年 rongyao100. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
+#import "LMBaseAlertView.h"
 
 typedef enum {
     LMShareViewTypeWeChat = 1,//微信好友
@@ -18,7 +18,7 @@ typedef enum {
 
 typedef void (^LMShareViewClickBlock) (LMShareViewType shareType);
 
-@interface LMShareView : UIView
+@interface LMShareView : LMBaseAlertView
 
 @property (nonatomic, copy) LMShareViewClickBlock shareBlock;
 

@@ -14,8 +14,8 @@
 static CGFloat CommentAvatorIVWidth = 50;
 static CGFloat CommentNameFontSize = 18;
 static CGFloat CommentContentFontSize = 16;
-static CGFloat CommentNameLabHeight = 30;
-static CGFloat CommentLikeBtnHeight = 20;
+static CGFloat CommentNameLabHeight = 25;
+static CGFloat CommentLikeBtnHeight = 15;
 
 
 @class LMCommentTableViewCell;

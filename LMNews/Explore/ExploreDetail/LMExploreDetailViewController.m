@@ -17,7 +17,9 @@
 #import "LMNewsDetailViewController.h"
 #import "UIImageView+WebCache.h"
 #import "LMMediaDetailViewController.h"
-#import "LMFastLoginViewController.h"
+#import "LMImagesNewsDetailViewController.h"
+#import "LMHomeNavigationBarView.h"
+#import "LMLoginAlertView.h"
 
 @interface LMExploreDetailViewController () <UITableViewDataSource, UITableViewDelegate, LMBaseRefreshTableViewDelegate>
 
@@ -52,13 +54,13 @@ static NSString* textCellIdentifier = @"textCellIdentifier";
     
     CGFloat screenHeight = [UIScreen mainScreen].bounds.size.height;
     CGFloat tabBarHeight = 49;
-    CGFloat naviBarHeight = 64 + 40;
+    CGFloat naviBarHeight = [LMHomeNavigationBarView getHomeNavigationBarViewHeight];
+    CGFloat totalNaviHeight = naviBarHeight + 30;
     if ([LMTool isIPhoneX]) {
         tabBarHeight = 83;
-        naviBarHeight = 88 + 40;
     }
     
-    self.tableView = [[LMBaseRefreshTableView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, screenHeight - tabBarHeight - naviBarHeight) style:UITableViewStyleGrouped];
+    self.tableView = [[LMBaseRefreshTableView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, screenHeight - tabBarHeight - totalNaviHeight) style:UITableViewStyleGrouped];
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
     self.tableView.refreshDelegate = self;
@@ -69,9 +71,9 @@ static NSString* textCellIdentifier = @"textCellIdentifier";
     [self.tableView registerClass:[LMRecommendTextTableViewCell class] forCellReuseIdentifier:textCellIdentifier];
     [self.view addSubview:self.tableView];
     
-    UIView* headerView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 45)];
+    UIView* headerView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 42)];
     
-    UIView* btnView = [[UIView alloc]initWithFrame:CGRectMake(0, 5, self.view.frame.size.width, 40)];
+    UIView* btnView = [[UIView alloc]initWithFrame:CGRectMake(0, 2, self.view.frame.size.width, 40)];
     [headerView addSubview:btnView];
     CGFloat btnWidth = 80;
     self.updateOrderBtn = [[UIButton alloc]initWithFrame:CGRectMake(self.view.frame.size.width - 10 - btnWidth, 0, btnWidth, btnView.frame.size.height)];
@@ -206,6 +208,14 @@ static NSString* textCellIdentifier = @"textCellIdentifier";
 }
 
 -(void)clickedSourceSubscriptionButton:(UIButton* )sender {
+    LoginedRegUser* user = [LMTool getLoginedRegUser];
+    if (user == nil) {
+        LMLoginAlertView* loginAV = [[LMLoginAlertView alloc]init];
+        [loginAV startShow];
+        
+        return;
+    }
+    
     NSInteger tag = sender.tag;
     LMExploreDetailModel* exploreModel = [self.dataArray objectAtIndex:tag];
     LMSource* source = exploreModel.lmSource;
@@ -226,18 +236,6 @@ static NSString* textCellIdentifier = @"textCellIdentifier";
     
     LMNetworkTool* tool = [LMNetworkTool sharedNetworkTool];
     [tool postWithCmd:8 ReqData:reqData successBlock:^(NSData *successData) {
-        LoginedRegUser* user = [LMTool getLoginedRegUser];
-        if (user == nil) {
-            LMFastLoginViewController* fastLoginVC = [[LMFastLoginViewController alloc]init];
-            fastLoginVC.userBlock = ^(LoginedRegUser *loginUser) {
-                if (loginUser != nil) {
-                    //
-                }
-            };
-            [weakSelf.navigationController pushViewController:fastLoginVC animated:YES];
-            
-            return;
-        }
         @try {
             QiWenApiRes* apiRes = [QiWenApiRes parseFromData:successData];
             if (apiRes.cmd == 8) {
@@ -248,22 +246,24 @@ static NSString* textCellIdentifier = @"textCellIdentifier";
                         [sender setTitle:@"+关注" forState:UIControlStateNormal];
                     }else {
                         source.isSub = 1;
-                        [sender setTitle:@"取消关注" forState:UIControlStateNormal];
+                        [sender setTitle:@"已关注" forState:UIControlStateNormal];
+                        sender.backgroundColor = [UIColor colorWithRed:150/255.f green:150/255.f blue:150/255.f alpha:1];
+                        sender.enabled = NO;
                     }
                     
-                    [self showMBProgressHUDWithText:@"操作成功"];
+                    [weakSelf showMBProgressHUDWithText:@"操作成功"];
                 }else {//无法增删改
-                    [self showMBProgressHUDWithText:@"操作失败"];
+                    [weakSelf showMBProgressHUDWithText:@"操作失败"];
                 }
             }
         } @catch (NSException *exception) {
-            [self showMBProgressHUDWithText:NetworkFailedError];
+            [weakSelf showMBProgressHUDWithText:NetworkFailedError];
         } @finally {
-            [self hideNetworkLoadingView];
+            [weakSelf hideNetworkLoadingView];
         }
     } failureBlock:^(NSError *failureError) {
-        [self hideNetworkLoadingView];
-        [self showMBProgressHUDWithText:NetworkFailedError];
+        [weakSelf hideNetworkLoadingView];
+        [weakSelf showMBProgressHUDWithText:NetworkFailedError];
     }];
 }
 
@@ -276,7 +276,7 @@ static NSString* textCellIdentifier = @"textCellIdentifier";
     LMExploreDetailModel* exploreModel = [self.dataArray objectAtIndex:section];
     LMSource* source = exploreModel.lmSource;
     
-    UIView* vi = [[UIView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 60)];
+    UIView* vi = [[UIView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 50)];
     vi.backgroundColor = [UIColor whiteColor];
     
     UIImageView* avatorIV = [[UIImageView alloc]initWithFrame:CGRectMake(10, 10, 40, 40)];
@@ -290,24 +290,28 @@ static NSString* textCellIdentifier = @"textCellIdentifier";
     [avatorIV addGestureRecognizer:tap];
     
     UILabel* tempLab = [[UILabel alloc]initWithFrame:CGRectZero];
-    tempLab.font = [UIFont systemFontOfSize:20];
+    tempLab.font = [UIFont systemFontOfSize:18];
     tempLab.text = source.sourceName;
     CGSize labSize = [tempLab sizeThatFits:CGSizeMake(CGFLOAT_MAX, 30)];
     
-    UIButton* nameBtn = [[UIButton alloc]initWithFrame:CGRectMake(60, 15, labSize.width, 30)];
+    UIButton* nameBtn = [[UIButton alloc]initWithFrame:CGRectMake(55, 15, labSize.width, 30)];
     nameBtn.tag = section;
-    nameBtn.titleLabel.font = [UIFont systemFontOfSize:20];
+    nameBtn.titleLabel.font = [UIFont systemFontOfSize:18];
     [nameBtn setTitle:source.sourceName forState:UIControlStateNormal];
     [nameBtn setTitleColor:[UIColor colorWithHex:themeOrangeString] forState:UIControlStateNormal];
     [nameBtn addTarget:self action:@selector(clickedSourceNameButton:) forControlEvents:UIControlEventTouchUpInside];
     [vi addSubview:nameBtn];
     
-    UIButton* subBtn = [[UIButton alloc]initWithFrame:CGRectMake(nameBtn.frame.origin.x + nameBtn.frame.size.width + 10, 20, 80, 20)];
+    UIButton* subBtn = [[UIButton alloc]initWithFrame:CGRectMake(nameBtn.frame.origin.x + nameBtn.frame.size.width + 5, 15, 75, 30)];
     subBtn.backgroundColor = [UIColor colorWithHex:subOrangeString];
+    subBtn.layer.cornerRadius = 3;
+    subBtn.layer.masksToBounds = YES;
     subBtn.tag = section;
     subBtn.titleLabel.font = [UIFont systemFontOfSize:16];
     if (source.isSub) {
-        [subBtn setTitle:@"取消关注" forState:UIControlStateNormal];
+        subBtn.backgroundColor = [UIColor colorWithRed:150/255.f green:150/255.f blue:150/255.f alpha:1];
+        subBtn.enabled = NO;
+        [subBtn setTitle:@"已关注" forState:UIControlStateNormal];
     }else {
         [subBtn setTitle:@"+关注" forState:UIControlStateNormal];
     }
@@ -315,11 +319,24 @@ static NSString* textCellIdentifier = @"textCellIdentifier";
     [subBtn addTarget:self action:@selector(clickedSourceSubscriptionButton:) forControlEvents:UIControlEventTouchUpInside];
     [vi addSubview:subBtn];
     
+    UILabel* subCountLab = [[UILabel alloc]initWithFrame:CGRectMake(self.view.frame.size.width - 10 - 90, subBtn.frame.origin.y, 90, 30)];
+    subCountLab.textAlignment = NSTextAlignmentRight;
+    subCountLab.font = [UIFont systemFontOfSize:13];
+    NSInteger tempCount = source.subCount;
+    NSString* tempCountStr = [NSString stringWithFormat:@"%ld人已关注", tempCount];
+    if (tempCount == 0) {
+        tempCountStr = @"";
+    }else if (tempCount > 1000) {
+        tempCountStr = [NSString stringWithFormat:@"%ld千人已关注", tempCount / 1000];
+    }
+    subCountLab.text = tempCountStr;
+    [vi addSubview:subCountLab];
+    
     return vi;
 }
 
 -(UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section {
-    UIView* vi = [[UIView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 45)];
+    UIView* vi = [[UIView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 42)];
     
     UIButton* moreBtn = [[UIButton alloc]initWithFrame:CGRectMake(0, 0, vi.frame.size.width, 40)];
     moreBtn.backgroundColor = [UIColor whiteColor];
@@ -327,6 +344,7 @@ static NSString* textCellIdentifier = @"textCellIdentifier";
     moreBtn.titleLabel.font = [UIFont systemFontOfSize:16];
     [moreBtn setTitle:@"更多内容>>" forState:UIControlStateNormal];
     [moreBtn setTitleColor:[UIColor colorWithHex:themeOrangeString] forState:UIControlStateNormal];
+    [moreBtn setTitleEdgeInsets:UIEdgeInsetsMake(5, 0, 15, 0)];
     [moreBtn addTarget:self action:@selector(clickedMoreButton:) forControlEvents:UIControlEventTouchUpInside];
     [vi addSubview:moreBtn];
     
@@ -334,11 +352,11 @@ static NSString* textCellIdentifier = @"textCellIdentifier";
 }
 
 -(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
-    return 60;
+    return 50;
 }
 
 -(CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section {
-    return 45;
+    return 42;
 }
 
 -(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
@@ -370,7 +388,11 @@ static NSString* textCellIdentifier = @"textCellIdentifier";
         if (cell == nil) {
             cell = [[LMRecommendImageTableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:imageCellIdentifier];
         }
-        
+        if (row == tempArr.count - 1) {
+            [cell showLineView:NO];
+        }else {
+            [cell showLineView:YES];
+        }
         [cell setupContentWithModel:model];
         
         return cell;
@@ -379,7 +401,11 @@ static NSString* textCellIdentifier = @"textCellIdentifier";
         if (cell == nil) {
             cell = [[LMRecommendVideoTableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:videoCellIdentifier];
         }
-        
+        if (row == tempArr.count - 1) {
+            [cell showLineView:NO];
+        }else {
+            [cell showLineView:YES];
+        }
         [cell setupContentWithModel:model];
         
         return cell;
@@ -388,7 +414,11 @@ static NSString* textCellIdentifier = @"textCellIdentifier";
         if (cell == nil) {
             cell = [[LMRecommendImagesTableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:imagesCellIdentifier];
         }
-        
+        if (row == tempArr.count - 1) {
+            [cell showLineView:NO];
+        }else {
+            [cell showLineView:YES];
+        }
         [cell setupContentWithModel:model];
         
         return cell;
@@ -397,7 +427,11 @@ static NSString* textCellIdentifier = @"textCellIdentifier";
         if (cell == nil) {
             cell = [[LMRecommendTextTableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:textCellIdentifier];
         }
-        
+        if (row == tempArr.count - 1) {
+            [cell showLineView:NO];
+        }else {
+            [cell showLineView:YES];
+        }
         [cell setupContentWithModel:model];
         
         return cell;
@@ -408,19 +442,25 @@ static NSString* textCellIdentifier = @"textCellIdentifier";
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     [self.tableView deselectRowAtIndexPath:indexPath animated:NO];
     
-    LMNewsDetailViewController* newsDetailVC = [[LMNewsDetailViewController alloc]init];
     NSInteger section = indexPath.section;
     NSInteger row = indexPath.row;
     LMExploreDetailModel* exploreModel = [self.dataArray objectAtIndex:section];
     NSArray* arr = exploreModel.articleList;
     LMRecommendModel* recommendModel = [arr objectAtIndex:row];
+    recommendModel.alreadyRead = YES;
     LMArticleSimple* simple = recommendModel.article;
-    newsDetailVC.newsId = simple.articleId;
-    [self.navigationController pushViewController:newsDetailVC animated:YES];
     
+    if (simple.isAllPic) {
+        LMImagesNewsDetailViewController* imagesDetailVC = [[LMImagesNewsDetailViewController alloc]init];
+        imagesDetailVC.newsId = simple.articleId;
+        [self.navigationController pushViewController:imagesDetailVC animated:YES];
+    }else {
+        LMNewsDetailViewController* newsDetailVC = [[LMNewsDetailViewController alloc]init];
+        newsDetailVC.newsId = simple.articleId;
+        [self.navigationController pushViewController:newsDetailVC animated:YES];
+    }
     [[LMDatabaseTool sharedDatabaseTool] setArticleWithArticleId:simple.articleId isRead:YES];
     
-    recommendModel.alreadyRead = YES;
     [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
 }
 

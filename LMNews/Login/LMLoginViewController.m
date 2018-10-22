@@ -54,7 +54,7 @@
     self.phoneTF.backgroundColor = [UIColor whiteColor];
     self.phoneTF.layer.borderColor = [UIColor colorWithRed:140.f/255 green:140.f/255 blue:140.f/255 alpha:1].CGColor;
     self.phoneTF.layer.borderWidth = 1;
-    self.phoneTF.layer.cornerRadius = 1;
+    self.phoneTF.layer.cornerRadius = 5;
     self.phoneTF.layer.masksToBounds = YES;
     self.phoneTF.keyboardType = UIKeyboardTypeNumberPad;
     self.phoneTF.clearButtonMode = UITextFieldViewModeWhileEditing;
@@ -71,7 +71,7 @@
     self.pwdTF = [[UITextField alloc]initWithFrame:CGRectMake(self.phoneTF.frame.origin.x, self.phoneTF.frame.origin.y + self.phoneTF.frame.size.height + spaceY, self.phoneTF.frame.size.width, self.phoneTF.frame.size.height)];
     self.pwdTF.backgroundColor = [UIColor whiteColor];
     self.pwdTF.layer.borderWidth = 1;
-    self.pwdTF.layer.cornerRadius = 1;
+    self.pwdTF.layer.cornerRadius = 5;
     self.pwdTF.layer.masksToBounds = YES;
     self.pwdTF.layer.borderColor = [UIColor colorWithRed:140.f/255 green:140.f/255 blue:140.f/255 alpha:1].CGColor;
     self.pwdTF.keyboardType = UIKeyboardTypeEmailAddress;

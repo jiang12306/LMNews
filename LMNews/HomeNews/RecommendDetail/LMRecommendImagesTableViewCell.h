@@ -18,6 +18,7 @@
 @property (nonatomic, strong) UILabel* detailLab;
 @property (nonatomic, strong) UIImageView* contentIV1;
 @property (nonatomic, strong) UIImageView* contentIV2;
+@property (nonatomic, strong) UILabel* totalCountLab;/**<图片数量 label*/
 @property (nonatomic, strong) UILabel* mediaNameLab;
 
 -(void)setupContentWithModel:(LMRecommendModel* )model;

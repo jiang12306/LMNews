@@ -12,6 +12,7 @@
 #import "LMTool.h"
 #import "LMBaseNavigationController.h"
 #import "LMLaunchDetailViewController.h"
+#import "LMBaseAlertView.h"
 
 @interface LMRootViewController () <UITabBarControllerDelegate>
 
@@ -160,13 +161,32 @@ static dispatch_once_t onceToken;
 
 //跳转至vc
 -(void)openViewControllerCalss:(NSString* )classString paramString:(NSString* )paramString {
+    NSArray* windowArr = [UIApplication sharedApplication].windows;
+    for (NSInteger i = 0; i < windowArr.count; i ++) {
+        UIWindow* currentWindow = [windowArr objectAtIndex:i];
+        NSArray* viewsArr = currentWindow.subviews;
+        for (UIView* vi in viewsArr) {
+            if ([vi isKindOfClass:[LMBaseAlertView class]]) {
+                [vi removeFromSuperview];
+            }
+        }
+    }
     LMBaseTabBarController* tabBarController;
     for (UIViewController* vc in self.childViewControllers) {
         if ([vc isKindOfClass:[LMBaseTabBarController class]]) {
             tabBarController = (LMBaseTabBarController* )vc;
             for (UIViewController* vc in tabBarController.viewControllers) {
                 LMBaseNavigationController* nvc = (LMBaseNavigationController* )vc;
-                [nvc popToRootViewControllerAnimated:NO];
+                
+                NSArray* vcArr = nvc.viewControllers;
+                for (NSInteger i = vcArr.count - 1; i >= 0; i --) {
+                    UIViewController* vc = [vcArr objectAtIndex:i];
+                    if (vc.presentedViewController) {
+                        [vc dismissViewControllerAnimated:NO completion:nil];
+                    }else {
+                        [vc.navigationController popViewControllerAnimated:NO];
+                    }
+                }
             }
             break;
         }

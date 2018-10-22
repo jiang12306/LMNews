@@ -11,9 +11,12 @@
 #import "LMExploreDetailViewController.h"
 #import "LMHomeRightBarButtonItemView.h"
 #import "LMMyMessageViewController.h"
+#import "LMHomeNavigationBarView.h"
+#import "LMTool.h"
 
 @interface LMExploreViewController () <UIScrollViewDelegate, UICollectionViewDelegate, UICollectionViewDataSource>
 
+@property (nonatomic, strong) LMHomeNavigationBarView* naviBarView;
 @property (nonatomic, strong) UICollectionView* collectionView;
 
 @property (nonatomic, strong) UIScrollView* scrollView;
@@ -29,12 +32,22 @@ static NSString* cellIdentifier = @"cellIdentifier";
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    UILabel *navTitleLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 150, 40)];
-    navTitleLabel.font = [UIFont boldSystemFontOfSize:25];
+    self.fd_prefersNavigationBarHidden = YES;
+    
+    CGFloat statusBarHeight = 20;
+    if ([LMTool isIPhoneX]) {
+        statusBarHeight = 44;
+    }
+    self.naviBarView = [[LMHomeNavigationBarView alloc]init];
+    [self.view addSubview:self.naviBarView];
+    
+    UILabel *navTitleLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 100, self.naviBarView.frame.size.height - statusBarHeight)];
+    navTitleLabel.font = [UIFont boldSystemFontOfSize:20];
     navTitleLabel.textColor = [UIColor colorWithHex:themeOrangeString];
     navTitleLabel.textAlignment = NSTextAlignmentCenter;
     navTitleLabel.text = @"探索";
-    self.navigationItem.titleView = navTitleLabel;
+    [self.naviBarView addSubview:navTitleLabel];
+    navTitleLabel.center = CGPointMake(self.naviBarView.frame.size.width / 2, self.naviBarView.frame.size.height / 2 + statusBarHeight / 2);
     
     __weak LMExploreViewController* weakSelf = self;
     
@@ -43,7 +56,8 @@ static NSString* cellIdentifier = @"cellIdentifier";
         LMMyMessageViewController* messageVC = [[LMMyMessageViewController alloc]init];
         [weakSelf.navigationController pushViewController:messageVC animated:YES];
     };
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc]initWithCustomView:rightItem];
+    [self.naviBarView addSubview:rightItem];
+    rightItem.center = CGPointMake(self.naviBarView.frame.size.width - 30, navTitleLabel.center.y);
     
     self.currentIndex = 0;
     
@@ -52,7 +66,7 @@ static NSString* cellIdentifier = @"cellIdentifier";
     //collectionView
     UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc]init];
     layout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
-    self.collectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 40) collectionViewLayout:layout];
+    self.collectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(0, self.naviBarView.frame.origin.y + self.naviBarView.frame.size.height, self.view.frame.size.width, 30) collectionViewLayout:layout];
     self.collectionView.showsHorizontalScrollIndicator = NO;
     self.collectionView.alwaysBounceHorizontal = YES;
     self.collectionView.alwaysBounceVertical = NO;
@@ -109,7 +123,7 @@ static NSString* cellIdentifier = @"cellIdentifier";
     if (indexPath.row == self.titleArray.count - 1) {
         if (self.collectionView.contentSize.width < self.view.frame.size.width) {
             CGPoint originPoint = self.collectionView.center;
-            self.collectionView.frame = CGRectMake(0, 0, self.collectionView.contentSize.width, self.collectionView.frame.size.height);
+            self.collectionView.frame = CGRectMake(0, self.naviBarView.frame.origin.y + self.naviBarView.frame.size.height, self.collectionView.contentSize.width, self.collectionView.frame.size.height);
             originPoint.x = self.view.frame.size.width / 2;
             self.collectionView.center = originPoint;
         }
@@ -136,11 +150,11 @@ static NSString* cellIdentifier = @"cellIdentifier";
     
     NSString* titleStr = [self.titleArray objectAtIndex:indexPath.row];
     
-    UILabel* lab = [[UILabel alloc]initWithFrame:CGRectMake(0, 0, 10, 40)];
+    UILabel* lab = [[UILabel alloc]initWithFrame:CGRectMake(0, 0, 10, 30)];
     lab.textAlignment = NSTextAlignmentCenter;
     lab.font = [UIFont systemFontOfSize:18];
     lab.text = titleStr;
-    CGSize labSize = [lab sizeThatFits:CGSizeMake(CGFLOAT_MAX, 40)];
+    CGSize labSize = [lab sizeThatFits:CGSizeMake(CGFLOAT_MAX, 30)];
     
     return CGSizeMake(labSize.width + 20, self.collectionView.frame.size.height);
 }

@@ -24,7 +24,7 @@
 
 @property (nonatomic, strong) LMNewsDetailModel* gifModel;
 @property (nonatomic, strong) NSIndexPath* gifIndexPath;
-@property (nonatomic, strong) UILabel* textLab;
+@property (nonatomic, strong) UITextView* textView;
 @property (nonatomic, strong) WKWebView* webView;
 
 @property (nonatomic, strong) UIActivityIndicatorView* aiView;

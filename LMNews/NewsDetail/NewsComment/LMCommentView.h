@@ -6,7 +6,7 @@
 //  Copyright © 2018年 rongyao100. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
+#import "LMBaseAlertView.h"
 
 //点击评论回调
 typedef void (^LMCommentViewTextBlock) (BOOL didStart);
@@ -17,7 +17,7 @@ typedef void (^LMCommentViewShareBlock) (BOOL didStart);
 //点击收藏回调
 typedef void (^LMCommentViewCollectBlock) (BOOL didStart);
 
-@interface LMCommentView : UIView
+@interface LMCommentView : LMBaseAlertView
 
 @property (nonatomic, strong) UIButton* shareBtn;/**<分享按钮*/
 @property (nonatomic, strong) UIButton* collectBtn;/**<（取消）收藏按钮*/

@@ -16,9 +16,9 @@ static CGFloat contentIVHeight = 75;//单张图片模式下图片高
 static CGFloat imagesIVWidth = 200;//多张图片模式下图片宽
 static CGFloat imagesIVHeight = 120;//多张图片模式下图片高
 static CGFloat mediaNameHeight = 15;//媒体名称label高度
-static CGFloat titleFontSize = 18;//标题label字号
-static CGFloat detailFontSize = 16;//简介label字号
-static CGFloat mediaNameFontSize = 14;//媒体名称label字号
+static CGFloat titleFontSize = 17;//标题label字号
+static CGFloat detailFontSize = 14;//简介label字号
+static CGFloat mediaNameFontSize = 13;//媒体名称label字号
 static CGFloat recommendCollectionViewHeight = 150;//LMRecommendCollectionViewCell中collectionView的item高度
 static CGFloat recommendListViewHeight = 40;//LMRecommendListTableViewCell中tableView的cell高度
 
@@ -63,6 +63,7 @@ static CGFloat recommendListViewHeight = 40;//LMRecommendListTableViewCell中tab
 @property (nonatomic, assign) UInt64 t;
 @property (nonatomic, assign) UInt64 commentCount;
 @property (nonatomic, assign) NSInteger picCount;
+@property (nonatomic, assign) NSInteger isAllPic;
 
 
 +(LMArticleSimple* )convertLMArticleSimpleWithArticleSimple:(ArticleSimple* )articleSimple;
@@ -113,11 +114,12 @@ typedef enum {
 @property (nonatomic, copy) NSString* title;//标题
 @property (nonatomic, copy) NSString* url;//单张图片图片、视频url
 @property (nonatomic, copy) NSString* url2;//LMRecommendImagesTableViewCell模式下第二张图片的url
+@property (nonatomic, assign) NSInteger totalImageCount;/**<多图模式下图片数量*/
 
 @property (nonatomic, assign) BOOL showTime;//是否显示时间戳   热点界面用
 @property (nonatomic, copy) NSString* time;//时间戳   热点界面用
 @property (nonatomic, copy) NSString* commentCountStr;//评论数  热点界面用
-//@property (nonatomic, assign) CGFloat commentWidth;//评论数宽度  热点界面用
+@property (nonatomic, assign) CGFloat commentWidth;//评论数宽度  热点界面用
 
 @property (nonatomic, assign) BOOL showMediaName;//是否显示媒体名称
 @property (nonatomic, copy) NSString* mediaName;//专题时显示“专题”；文章显示媒体名称

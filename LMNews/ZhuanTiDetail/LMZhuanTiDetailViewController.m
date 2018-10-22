@@ -16,6 +16,7 @@
 #import "LMRecommendModel.h"
 #import "LMNewsDetailViewController.h"
 #import "UIImageView+WebCache.h"
+#import "LMImagesNewsDetailViewController.h"
 
 @interface LMZhuanTiDetailViewController () <UITableViewDataSource, UITableViewDelegate, LMBaseRefreshTableViewDelegate>
 
@@ -253,17 +254,24 @@ static NSString* textCellIdentifier = @"textCellIdentifier";
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     [self.tableView deselectRowAtIndexPath:indexPath animated:NO];
     
-    LMNewsDetailViewController* newsDetailVC = [[LMNewsDetailViewController alloc]init];
-    
     NSInteger section = indexPath.section;
     LMRecommendModel* model = [self.dataArray objectAtIndex:section];
+    model.alreadyRead = YES;
     LMArticleSimple* articleSimple = model.article;
-        newsDetailVC.newsId = articleSimple.articleId;
-    [self.navigationController pushViewController:newsDetailVC animated:YES];
-    
+    //
     [[LMDatabaseTool sharedDatabaseTool] setArticleWithArticleId:articleSimple.articleId isRead:YES];
     
-    model.alreadyRead = YES;
+    if (articleSimple.isAllPic) {
+        LMImagesNewsDetailViewController* imagesDetailVC = [[LMImagesNewsDetailViewController alloc]init];
+        imagesDetailVC.newsId = articleSimple.articleId;
+        [self.navigationController pushViewController:imagesDetailVC animated:YES];
+    }else {
+        
+        LMNewsDetailViewController* newsDetailVC = [[LMNewsDetailViewController alloc]init];
+        newsDetailVC.newsId = articleSimple.articleId;
+        [self.navigationController pushViewController:newsDetailVC animated:YES];
+    }
+    
     [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
 }
 

@@ -12,7 +12,7 @@
 #import "LMMediaDetailViewController.h"
 #import "UIImageView+WebCache.h"
 #import "LMTool.h"
-#import "LMFastLoginViewController.h"
+#import "LMLoginAlertView.h"
 
 @interface LMMySubscriptionViewController () <UITableViewDataSource, UITableViewDelegate, LMBaseRefreshTableViewDelegate, LMMySubscriptionTableViewCellDelegate>
 
@@ -230,6 +230,19 @@ static NSString* cellIdentifier = @"cellIdentifier";
 }
 
 -(void)didClickCell:(LMMySubscriptionTableViewCell* )cell deleteButton:(UIButton* )btn {
+    LoginedRegUser* user = [LMTool getLoginedRegUser];
+    if (user == nil) {
+        LMLoginAlertView* loginAV = [[LMLoginAlertView alloc]init];
+        loginAV.loginBlock = ^(BOOL didLogined) {
+            if (didLogined) {
+                
+            }
+        };
+        [loginAV startShow];
+        
+        return;
+    }
+    
     [self showNetworkLoadingView];
     
     NSIndexPath* indexPath = [self.tableView indexPathForCell:cell];
@@ -245,18 +258,6 @@ static NSString* cellIdentifier = @"cellIdentifier";
     
     LMNetworkTool* tool = [LMNetworkTool sharedNetworkTool];
     [tool postWithCmd:8 ReqData:reqData successBlock:^(NSData *successData) {
-        LoginedRegUser* user = [LMTool getLoginedRegUser];
-        if (user == nil) {
-            LMFastLoginViewController* fastLoginVC = [[LMFastLoginViewController alloc]init];
-            fastLoginVC.userBlock = ^(LoginedRegUser *loginUser) {
-                if (loginUser != nil) {
-                    //
-                }
-            };
-            [weakSelf.navigationController pushViewController:fastLoginVC animated:YES];
-            
-            return;
-        }
         @try {
             QiWenApiRes* apiRes = [QiWenApiRes parseFromData:successData];
             if (apiRes.cmd == 8) {

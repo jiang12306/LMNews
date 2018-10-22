@@ -30,7 +30,7 @@ CGFloat btnWidth = 60;
         [keyWindow addSubview:self];
         self.hidden = YES;
         
-        CGFloat totalHeight = 50 + btnWidth + 10 * 3 + 40;
+        CGFloat totalHeight = 50 + btnWidth + 10 * 3 + 50;
         if ([LMTool isIPhoneX]) {
             totalHeight += 40;
         }

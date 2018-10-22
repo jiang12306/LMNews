@@ -16,8 +16,9 @@
 #import "LMNewsDetailViewController.h"
 #import "LMMediaDetailCollectionViewCell.h"
 #import "UIImageView+WebCache.h"
-#import "LMFastLoginViewController.h"
+#import "LMLoginAlertView.h"
 #import "LMTool.h"
+#import "LMImagesNewsDetailViewController.h"
 
 @interface LMMediaDetailViewController () <UITableViewDataSource, UITableViewDelegate, LMBaseRefreshTableViewDelegate, UICollectionViewDelegate, UICollectionViewDataSource>
 
@@ -52,7 +53,14 @@ static NSString* mediaCellIdentifier = @"mediaCellIdentifier";
     
     self.title = @"媒体详情";
     
-    self.tableView = [[LMBaseRefreshTableView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height) style:UITableViewStyleGrouped];
+    CGFloat naviHeight = 20 + 44;
+    if ([LMTool isIPhoneX]) {
+        naviHeight = 40 + 44;
+    }
+    self.tableView = [[LMBaseRefreshTableView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height - naviHeight) style:UITableViewStyleGrouped];
+    if (@available(iOS 11.0, *)) {
+        self.tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    }
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
     self.tableView.refreshDelegate = self;
@@ -107,8 +115,10 @@ static NSString* mediaCellIdentifier = @"mediaCellIdentifier";
             [self.headerView addSubview:self.briefLab];
         }
         
-        self.subBtn = [[UIButton alloc]initWithFrame:CGRectMake(self.nameLab.frame.origin.x, self.briefLab.frame.origin.y + self.briefLab.frame.size.height + 10, 80, 20)];
+        self.subBtn = [[UIButton alloc]initWithFrame:CGRectMake(self.nameLab.frame.origin.x, self.briefLab.frame.origin.y + self.briefLab.frame.size.height + 5, 75, 30)];
         self.subBtn.backgroundColor = [UIColor colorWithHex:subOrangeString];
+        self.subBtn.layer.cornerRadius = 3;
+        self.subBtn.layer.masksToBounds = YES;
         self.subBtn.titleLabel.font = [UIFont systemFontOfSize:16];
         if (source.isSub) {
             self.isAlreadySub = YES;
@@ -172,6 +182,19 @@ static NSString* mediaCellIdentifier = @"mediaCellIdentifier";
 }
 
 -(void)clickedSourceSubscriptionButton:(UIButton* )sender {
+    LoginedRegUser* user = [LMTool getLoginedRegUser];
+    if (user == nil) {
+        LMLoginAlertView* loginAV = [[LMLoginAlertView alloc]init];
+        loginAV.loginBlock = ^(BOOL didLogined) {
+            if (didLogined) {
+                
+            }
+        };
+        [loginAV startShow];
+        
+        return;
+    }
+    
     SourceDoType type = SourceDoTypeSourceFollow;
     if (self.isAlreadySub) {
         type = SourceDoTypeSourceUnfollow;
@@ -188,42 +211,30 @@ static NSString* mediaCellIdentifier = @"mediaCellIdentifier";
     
     LMNetworkTool* tool = [LMNetworkTool sharedNetworkTool];
     [tool postWithCmd:8 ReqData:reqData successBlock:^(NSData *successData) {
-        LoginedRegUser* user = [LMTool getLoginedRegUser];
-        if (user == nil) {
-            LMFastLoginViewController* fastLoginVC = [[LMFastLoginViewController alloc]init];
-            fastLoginVC.userBlock = ^(LoginedRegUser *loginUser) {
-                if (loginUser != nil) {
-                    //
-                }
-            };
-            [weakSelf.navigationController pushViewController:fastLoginVC animated:YES];
-            
-            return;
-        }
         @try {
             QiWenApiRes* apiRes = [QiWenApiRes parseFromData:successData];
             if (apiRes.cmd == 8) {
                 ErrCode err = apiRes.err;
                 if (err == ErrCodeErrNone) {//成功
-                    self.isAlreadySub = !self.isAlreadySub;
-                    if (self.isAlreadySub) {
-                        [self.subBtn setTitle:@"取消关注" forState:UIControlStateNormal];
+                    weakSelf.isAlreadySub = !weakSelf.isAlreadySub;
+                    if (weakSelf.isAlreadySub) {
+                        [weakSelf.subBtn setTitle:@"取消关注" forState:UIControlStateNormal];
                     }else {
-                        [self.subBtn setTitle:@"+关注" forState:UIControlStateNormal];
+                        [weakSelf.subBtn setTitle:@"+关注" forState:UIControlStateNormal];
                     }
-                    [self showMBProgressHUDWithText:@"操作成功"];
+                    [weakSelf showMBProgressHUDWithText:@"操作成功"];
                 }else {//无法增删改
-                    [self showMBProgressHUDWithText:@"操作失败"];
+                    [weakSelf showMBProgressHUDWithText:@"操作失败"];
                 }
             }
         } @catch (NSException *exception) {
-            [self showMBProgressHUDWithText:NetworkFailedError];
+            [weakSelf showMBProgressHUDWithText:NetworkFailedError];
         } @finally {
-            [self hideNetworkLoadingView];
+            [weakSelf hideNetworkLoadingView];
         }
     } failureBlock:^(NSError *failureError) {
-        [self hideNetworkLoadingView];
-        [self showMBProgressHUDWithText:NetworkFailedError];
+        [weakSelf hideNetworkLoadingView];
+        [weakSelf showMBProgressHUDWithText:NetworkFailedError];
     }];
 }
 
@@ -313,6 +324,19 @@ static NSString* mediaCellIdentifier = @"mediaCellIdentifier";
     __weak LMMediaDetailViewController* weakSelf = self;
     
     cell.block = ^(BOOL click, LMMediaDetailCollectionViewCell *clickCell) {
+        LoginedRegUser* user = [LMTool getLoginedRegUser];
+        if (user == nil) {
+            LMLoginAlertView* loginAV = [[LMLoginAlertView alloc]init];
+            loginAV.loginBlock = ^(BOOL didLogined) {
+                if (didLogined) {
+                    
+                }
+            };
+            [loginAV startShow];
+            
+            return;
+        }
+        
         SourceDoType type = SourceDoTypeSourceFollow;
         if (source.isSub) {
             type = SourceDoTypeSourceUnfollow;
@@ -327,18 +351,6 @@ static NSString* mediaCellIdentifier = @"mediaCellIdentifier";
         
         LMNetworkTool* tool = [LMNetworkTool sharedNetworkTool];
         [tool postWithCmd:8 ReqData:reqData successBlock:^(NSData *successData) {
-            LoginedRegUser* user = [LMTool getLoginedRegUser];
-            if (user == nil) {
-                LMFastLoginViewController* fastLoginVC = [[LMFastLoginViewController alloc]init];
-                fastLoginVC.userBlock = ^(LoginedRegUser *loginUser) {
-                    if (loginUser != nil) {
-                        //
-                    }
-                };
-                [weakSelf.navigationController pushViewController:fastLoginVC animated:YES];
-                
-                return;
-            }
             @try {
                 QiWenApiRes* apiRes = [QiWenApiRes parseFromData:successData];
                 if (apiRes.cmd == 8) {
@@ -403,7 +415,7 @@ static NSString* mediaCellIdentifier = @"mediaCellIdentifier";
 
 #pragma mark -UITableViewDataSource
 -(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
-    UIView* vi = [[UIView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 5)];
+    UIView* vi = [[UIView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 2)];
     return vi;
 }
 
@@ -413,7 +425,7 @@ static NSString* mediaCellIdentifier = @"mediaCellIdentifier";
 }
 
 -(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
-    return 5;
+    return 2;
 }
 
 -(CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section {
@@ -443,6 +455,7 @@ static NSString* mediaCellIdentifier = @"mediaCellIdentifier";
         if (cell == nil) {
             cell = [[LMRecommendImageTableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:imageCellIdentifier];
         }
+        [cell showLineView:NO];
         [cell setupContentWithModel:model];
         
         return cell;
@@ -451,6 +464,7 @@ static NSString* mediaCellIdentifier = @"mediaCellIdentifier";
         if (cell == nil) {
             cell = [[LMRecommendVideoTableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:videoCellIdentifier];
         }
+        [cell showLineView:NO];
         [cell setupContentWithModel:model];
         
         return cell;
@@ -459,6 +473,7 @@ static NSString* mediaCellIdentifier = @"mediaCellIdentifier";
         if (cell == nil) {
             cell = [[LMRecommendImagesTableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:imagesCellIdentifier];
         }
+        [cell showLineView:NO];
         [cell setupContentWithModel:model];
         
         return cell;
@@ -467,6 +482,7 @@ static NSString* mediaCellIdentifier = @"mediaCellIdentifier";
         if (cell == nil) {
             cell = [[LMRecommendTextTableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:textCellIdentifier];
         }
+        [cell showLineView:NO];
         [cell setupContentWithModel:model];
         
         return cell;
@@ -477,16 +493,21 @@ static NSString* mediaCellIdentifier = @"mediaCellIdentifier";
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     [self.tableView deselectRowAtIndexPath:indexPath animated:NO];
     
-    LMNewsDetailViewController* newsDetailVC = [[LMNewsDetailViewController alloc]init];
     NSInteger section = indexPath.section;
     LMRecommendModel* model = [self.dataArray objectAtIndex:section];
+    model.alreadyRead = YES;
     LMArticleSimple* articleSimple = model.article;
-    newsDetailVC.newsId = articleSimple.articleId;
-    [self.navigationController pushViewController:newsDetailVC animated:YES];
-    
+    if (articleSimple.isAllPic) {
+        LMImagesNewsDetailViewController* imagesDetailVC = [[LMImagesNewsDetailViewController alloc]init];
+        imagesDetailVC.newsId = articleSimple.articleId;
+        [self.navigationController pushViewController:imagesDetailVC animated:YES];
+    }else {
+        LMNewsDetailViewController* newsDetailVC = [[LMNewsDetailViewController alloc]init];
+        newsDetailVC.newsId = articleSimple.articleId;
+        [self.navigationController pushViewController:newsDetailVC animated:YES];
+    }
     [[LMDatabaseTool sharedDatabaseTool] setArticleWithArticleId:articleSimple.articleId isRead:YES];
     
-    model.alreadyRead = YES;
     [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
 }
 

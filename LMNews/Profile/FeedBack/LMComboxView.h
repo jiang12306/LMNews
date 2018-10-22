@@ -6,11 +6,11 @@
 //  Copyright © 2018年 tkmob. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
+#import "LMBaseAlertView.h"
 
 typedef void (^LMComboxViewBlock) (NSInteger selectedIndex);
 
-@interface LMComboxView : UIView
+@interface LMComboxView : LMBaseAlertView
 
 -(instancetype )initWithFrame:(CGRect )frame titleArr:(NSArray* )titleArr cellHeight:(CGFloat )cellHeight;
 

@@ -109,7 +109,7 @@
                         [[UIApplication sharedApplication] openURL:encodeUrl];
                     }
                 }else {
-                    //打开广告也详情
+                    //打开广告页详情
                     [rootVC openViewControllerCalss:@"LMLaunchDetailViewController" paramString:urlStr];
                 }
             }
@@ -246,7 +246,7 @@
 
 #ifdef NSFoundationVersionNumber_iOS_9_x_Max
 #pragma mark- JPUSHRegisterDelegate
-- (void)jpushNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(NSInteger))completionHandler {
+- (void)jpushNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(NSInteger))completionHandler  API_AVAILABLE(ios(10.0)){
     NSDictionary * userInfo = notification.request.content.userInfo;
     
     UNNotificationRequest *request = notification.request; // 收到推送的请求

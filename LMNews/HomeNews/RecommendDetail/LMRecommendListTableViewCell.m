@@ -58,7 +58,7 @@ static NSString* cellIdentifier = @"cellIdentifier";
         }
     }
     if (!self.mediaNameLab) {
-        self.mediaNameLab = [[UILabel alloc]initWithFrame:CGRectMake(10, self.tableView.frame.origin.y + self.tableView.frame.size.height + 10, screenWidth - 10 * 2, 20)];
+        self.mediaNameLab = [[UILabel alloc]initWithFrame:CGRectMake(10, self.tableView.frame.origin.y + self.tableView.frame.size.height + 10, screenWidth - 10 * 2, 15)];
         self.mediaNameLab.font = [UIFont systemFontOfSize:mediaNameFontSize];
         self.mediaNameLab.textColor = [UIColor colorWithHex:alreadyReadString];
         self.mediaNameLab.numberOfLines = 0;
@@ -152,7 +152,7 @@ static NSString* cellIdentifier = @"cellIdentifier";
     if (model.showMediaName) {
         self.mediaNameLab.hidden = NO;
         self.mediaNameLab.text = model.mediaName;
-        self.mediaNameLab.frame = CGRectMake(10, self.tableView.frame.origin.y + self.tableView.frame.size.height + 10, screenWidth - 10 * 2, 20);
+        self.mediaNameLab.frame = CGRectMake(10, self.tableView.frame.origin.y + self.tableView.frame.size.height + 10, screenWidth - 10 * 2, 15);
     }
     if (model.alreadyRead) {
         self.titleLab.textColor = [UIColor colorWithHex:alreadyReadString];

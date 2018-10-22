@@ -112,12 +112,7 @@ static NSString* followCellIdentifier = @"followCellIdentifier";
                                 
                                 Comment* tempComment = [model.comments objectAtIndex:0];
                                 
-                                NSString* tempTimeStr = tempComment.cT;
-                                if (tempTimeStr != nil && tempTimeStr.length >= 10) {
-                                    tempTimeStr = [tempTimeStr substringToIndex:10];
-                                }
-                                tempTimeStr = [NSString stringWithFormat:@"(%@)", tempTimeStr];
-                                model.timeStr = tempTimeStr;
+                                model.timeStr = tempComment.cT;
                             }
                             
                             [self.dataArray addObject:model];
@@ -200,7 +195,7 @@ static NSString* followCellIdentifier = @"followCellIdentifier";
 -(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
     LMMyFollowMessageModel* model = [self.dataArray objectAtIndex:section];
     
-    UIView* vi = [[UIView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, followMessageCellAvatorWIdth + 10 * 2)];
+    UIView* vi = [[UIView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, followMessageCellAvatorWIdth + 10)];
     vi.backgroundColor = [UIColor whiteColor];
     
     UIImageView* avatorIV = [[UIImageView alloc]initWithFrame:CGRectMake(10, 10, followMessageCellAvatorWIdth, followMessageCellAvatorWIdth)];
@@ -209,7 +204,7 @@ static NSString* followCellIdentifier = @"followCellIdentifier";
     [avatorIV sd_setImageWithURL:[NSURL URLWithString:model.user.icon] placeholderImage:[UIImage imageNamed:@"avator_LoginOut"]];
     [vi addSubview:avatorIV];
     
-    UILabel* nameLab = [[UILabel alloc]initWithFrame:CGRectMake(followMessageCellAvatorWIdth + 10 * 2, 25, model.nameWidth, 20)];
+    UILabel* nameLab = [[UILabel alloc]initWithFrame:CGRectMake(followMessageCellAvatorWIdth + 10 * 2, 10, model.nameWidth, 25)];
     nameLab.font = [UIFont systemFontOfSize:18];
     nameLab.textColor = [UIColor colorWithHex:themeOrangeString];
     nameLab.text = model.nickStr;
@@ -223,10 +218,9 @@ static NSString* followCellIdentifier = @"followCellIdentifier";
     [replyBtn addTarget:self action:@selector(clickedReplyButton:) forControlEvents:UIControlEventTouchUpInside];
     [vi addSubview:replyBtn];
     
-    CGFloat maxTimeWidth = replyBtn.frame.origin.x - nameLab.frame.origin.x - nameLab.frame.size.width - 10 * 2;
-    UILabel* timeLab = [[UILabel alloc]initWithFrame:CGRectMake(nameLab.frame.origin.x + nameLab.frame.size.width + 10, 25, maxTimeWidth, 20)];
-    timeLab.font = [UIFont systemFontOfSize:18];
-    timeLab.textColor = [UIColor colorWithHex:themeOrangeString];
+    UILabel* timeLab = [[UILabel alloc]initWithFrame:CGRectMake(nameLab.frame.origin.x, nameLab.frame.origin.y + nameLab.frame.size.height, 130, 25)];
+    timeLab.font = [UIFont systemFontOfSize:12];
+    timeLab.textColor = [UIColor colorWithHex:alreadyReadString];
     timeLab.text = model.timeStr;
     [vi addSubview:timeLab];
     
@@ -257,7 +251,7 @@ static NSString* followCellIdentifier = @"followCellIdentifier";
 }
 
 -(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
-    return followMessageCellAvatorWIdth + 10 * 2;
+    return followMessageCellAvatorWIdth + 10;
 }
 
 -(CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section {
@@ -316,6 +310,7 @@ static NSString* followCellIdentifier = @"followCellIdentifier";
 
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     NSInteger section = indexPath.section;
+    NSInteger row = indexPath.row;
     LMMyFollowMessageTableViewCell* cell = [self.tableView dequeueReusableCellWithIdentifier:followCellIdentifier forIndexPath:indexPath];
     if (cell == nil) {
         cell = [[LMMyFollowMessageTableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:followCellIdentifier];
@@ -324,9 +319,13 @@ static NSString* followCellIdentifier = @"followCellIdentifier";
     if (model.isFold) {
         [cell showLineView:NO];
     }else {
-        [cell showLineView:YES];
+        if (row == model.comments.count - 1) {
+            [cell showLineView:NO];
+        }else {
+            [cell showLineView:YES];
+        }
     }
-    Comment* subComment = [model.comments objectAtIndex:indexPath.row];
+    Comment* subComment = [model.comments objectAtIndex:row];
     [cell setupMessageContentWithComment:subComment];
     
     return cell;

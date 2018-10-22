@@ -10,6 +10,7 @@
 
 @interface LMProfileTableViewCell : LMBaseArrowTableViewCell
 
+@property (nonatomic, strong) UIImageView* coverIV;
 @property (nonatomic, strong) UILabel* titleLab;
 @property (nonatomic, strong) UILabel* dotLab;/**<黄点标记*/
 

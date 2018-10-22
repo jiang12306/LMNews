@@ -18,6 +18,7 @@ typedef void (^LMMediaDetailCollectionViewCellBlock) (BOOL click, LMMediaDetailC
 @property (nonatomic, strong) UIImageView* mediaIV;
 @property (nonatomic, strong) UILabel* nameLab;
 @property (nonatomic, strong) UIButton* subBtn;
+@property (nonatomic, strong) UIView* bgView;/**<背景*/
 
 @property (nonatomic, copy) LMMediaDetailCollectionViewCellBlock block;
 

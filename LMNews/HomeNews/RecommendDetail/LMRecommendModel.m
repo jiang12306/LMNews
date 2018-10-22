@@ -72,6 +72,7 @@
     articleSimple.t = self.t;
     articleSimple.commentCount = self.commentCount;
     articleSimple.picCount = self.picCount;
+    articleSimple.isAllPic = self.isAllPic;
     return articleSimple;
 }
 
@@ -90,6 +91,7 @@
     lmArticleSimple.t = articleSimple.t;
     lmArticleSimple.commentCount = articleSimple.commentCount;
     lmArticleSimple.picCount = articleSimple.picsCount;
+    lmArticleSimple.isAllPic = articleSimple.isAllPic;
     return lmArticleSimple;
 }
 
@@ -143,7 +145,7 @@
     if (font) {
         lab.font = font;
     }else {
-        lab.font = [UIFont systemFontOfSize:18];
+        lab.font = [UIFont systemFontOfSize:titleFontSize];
     }
     lab.text = text;
     CGSize labSize = [lab sizeThatFits:CGSizeMake(CGFLOAT_MAX, maxHeight)];
@@ -176,7 +178,7 @@
     if (font) {
         lab.font = font;
     }else {
-        lab.font = [UIFont systemFontOfSize:18];
+        lab.font = [UIFont systemFontOfSize:titleFontSize];
     }
     lab.text = text;
     CGSize labSize = [lab sizeThatFits:CGSizeMake(maxWidth, CGFLOAT_MAX)];
@@ -187,7 +189,6 @@
     }
     return labSize.height;
 }
-
 
 +(NSArray *)convertModelWithArray:(NSArray *)arr {
     CGFloat screenWidth = [UIScreen mainScreen].bounds.size.width;
@@ -218,13 +219,13 @@
                 tempCountStr = @"999+";
             }
             model.commentCountStr = tempCountStr;//评论数 热点界面用
-//            model.commentWidth = [LMRecommendModel caculateRecommendImageLabelWidthWithText:tempCountStr maxHeight:20 maxLines:1 font:[UIFont systemFontOfSize:mediaNameFontSize]];
+            model.commentWidth = [LMRecommendModel caculateRecommendImageLabelWidthWithText:tempCountStr maxHeight:20 maxLines:1 font:[UIFont systemFontOfSize:mediaNameFontSize]];
             
             NSArray* picsArr = lmArticleSimple.pics;
             if (picsArr == nil || picsArr.count == 0) {//LMRecommendTextTableViewCell
                 model.cellStyle = LMRecommendTextTableViewCellStyle;
                 model.titleHeight = [LMRecommendModel caculateRecommendImageLabelHeightWithText:model.title maxWidth:(screenWidth - spaceX * 2) maxLines:2 font:[UIFont systemFontOfSize:titleFontSize]];
-                model.cellHeight = model.titleHeight + spaceX * 2 + 30;
+                model.cellHeight = model.titleHeight + spaceX * 2 + 25;
             }else {
                 NSInteger isVideo = NO;
                 NSInteger imagesCount = 0;
@@ -259,7 +260,7 @@
                         spaceCount = 4;
                     }
                     model.videoHeight = (screenWidth - spaceX * 2) * 0.618;
-                    model.cellHeight = model.titleHeight + model.briefHeight + model.videoHeight + spaceX * spaceCount + 30;
+                    model.cellHeight = model.titleHeight + model.briefHeight + model.videoHeight + spaceX * spaceCount + 25;
                 }else {
                     if (imagesCount == 1) {//LMRecommendImageTableViewCell
                         model.cellStyle = LMRecommendImageTableViewCellStyle;
@@ -270,9 +271,9 @@
                             model.briefHeight = [LMRecommendModel caculateRecommendImageLabelHeightWithText:model.brief maxWidth:(screenWidth - contentIVWidth - spaceX * 3) maxLines:2 font:[UIFont systemFontOfSize:detailFontSize]];
                             spaceCount = 3;
                         }
-                        model.cellHeight = model.titleHeight + model.briefHeight + spaceX * spaceCount + 30;
-                        if (model.cellHeight < contentIVHeight + spaceX * 2 + 30) {
-                            model.cellHeight = contentIVHeight + spaceX * 2 + 30;
+                        model.cellHeight = model.titleHeight + model.briefHeight + spaceX * spaceCount + 25;
+                        if (model.cellHeight < contentIVHeight + spaceX * 2 + 25) {
+                            model.cellHeight = contentIVHeight + spaceX * 2 + 25;
                         }
                     }else if (imagesCount == 0) {//LMRecommendTextTableViewCell
                         model.cellStyle = LMRecommendTextTableViewCellStyle;
@@ -283,7 +284,7 @@
                             model.briefHeight = [LMRecommendModel caculateRecommendImageLabelHeightWithText:model.brief maxWidth:(screenWidth - spaceX * 2) maxLines:2 font:[UIFont systemFontOfSize:detailFontSize]];
                             spaceCount = 3;
                         }
-                        model.cellHeight = model.titleHeight + model.briefHeight + spaceX * spaceCount + 30;
+                        model.cellHeight = model.titleHeight + model.briefHeight + spaceX * spaceCount + 25;
                     }else {//LMRecommendImagesTableViewCell
                         model.cellStyle = LMRecommendImagesTableViewCellStyle;
                         model.titleHeight = [LMRecommendModel caculateRecommendImageLabelHeightWithText:model.title maxWidth:(screenWidth - spaceX * 2) maxLines:2 font:[UIFont systemFontOfSize:titleFontSize]];
@@ -294,7 +295,8 @@
                             spaceCount = 4;
                         }
                         model.imageHeight = imagesIVHeight;
-                        model.cellHeight = model.titleHeight + model.briefHeight + model.imageHeight + spaceX * spaceCount + 30;
+                        model.totalImageCount = lmArticleSimple.picCount;
+                        model.cellHeight = model.titleHeight + model.briefHeight + model.imageHeight + spaceX * spaceCount + 25;
                     }
                 }
             }
@@ -309,7 +311,7 @@
                 model.titleHeight = [LMRecommendModel caculateRecommendImageLabelHeightWithText:model.title maxWidth:(screenWidth - spaceX * 2) maxLines:2 font:[UIFont systemFontOfSize:titleFontSize]];
                 model.briefHeight = [LMRecommendModel caculateRecommendImageLabelHeightWithText:model.brief maxWidth:(screenWidth - spaceX * 2) maxLines:2 font:[UIFont systemFontOfSize:detailFontSize]];
                 NSInteger spaceCount = 0;
-                if (lmZhuanTi.list != nil && lmZhuanTi.list > 0) {
+                if (lmZhuanTi.list != nil && lmZhuanTi.list.count > 0) {
                     model.collectionViewHeight = recommendCollectionViewHeight;//暂时写死
                     if (model.briefHeight > 0) {
                         spaceCount = 4;
@@ -324,7 +326,7 @@
                         spaceCount = 2;
                     }
                 }
-                model.cellHeight = model.titleHeight + model.briefHeight + model.collectionViewHeight + spaceX * spaceCount + 30;
+                model.cellHeight = model.titleHeight + model.briefHeight + model.collectionViewHeight + spaceX * spaceCount + 25;
             }else if (style == 2) {//LMRecommendListTableViewCell
                 model.cellStyle = LMRecommendListTableViewCellStyle;
                 model.titleHeight = [LMRecommendModel caculateRecommendImageLabelHeightWithText:model.title maxWidth:(screenWidth - spaceX * 2) maxLines:2 font:[UIFont systemFontOfSize:titleFontSize]];
@@ -334,7 +336,7 @@
                 if (lmZhuanTi.list != nil && lmZhuanTi.list > 0) {
                     spaceCount = 3;
                 }
-                model.cellHeight = model.titleHeight + model.briefHeight + model.listViewHeight + spaceX * spaceCount + 30;
+                model.cellHeight = model.titleHeight + model.briefHeight + model.listViewHeight + spaceX * spaceCount + 25;
             }else if (style == 3) {//LMRecommendImageTableViewCell
                 model.cellStyle = LMRecommendImageTableViewCellStyle;
                 NSArray* tempListArr = lmZhuanTi.list;
@@ -359,9 +361,9 @@
                     model.briefHeight = [LMRecommendModel caculateRecommendImageLabelHeightWithText:model.brief maxWidth:(screenWidth - contentIVWidth - spaceX * 3) maxLines:2 font:[UIFont systemFontOfSize:detailFontSize]];
                     spaceCount = 3;
                 }
-                model.cellHeight = model.titleHeight + model.briefHeight + spaceX * spaceCount + 30;
-                if (model.cellHeight < contentIVHeight + spaceX * 2 + 30) {
-                    model.cellHeight = contentIVHeight + spaceX * 2 + 30;
+                model.cellHeight = model.titleHeight + model.briefHeight + spaceX * spaceCount + 25;
+                if (model.cellHeight < contentIVHeight + spaceX * 2 + 25) {
+                    model.cellHeight = contentIVHeight + spaceX * 2 + 25;
                 }
             }else {//LMRecommendTextTableViewCell
                 model.cellStyle = LMRecommendTextTableViewCellStyle;
@@ -372,9 +374,9 @@
                     model.briefHeight = [LMRecommendModel caculateRecommendImageLabelHeightWithText:model.brief maxWidth:(screenWidth - spaceX * 2) maxLines:2 font:[UIFont systemFontOfSize:detailFontSize]];
                     spaceCount = 3;
                 }
-                model.cellHeight = model.titleHeight + model.briefHeight + spaceX * spaceCount + 30;
-                if (model.cellHeight < contentIVHeight + spaceX * 2 + 30) {
-                    model.cellHeight = contentIVHeight + spaceX * 2 + 30;
+                model.cellHeight = model.titleHeight + model.briefHeight + spaceX * spaceCount + 25;
+                if (model.cellHeight < contentIVHeight + spaceX * 2 + 25) {
+                    model.cellHeight = contentIVHeight + spaceX * 2 + 25;
                 }
             }
         }
@@ -476,6 +478,7 @@
                     spaceCount = 4;
                 }
                 model.imageHeight = imagesIVHeight;
+                model.totalImageCount = lmArticleSimple.picCount;
                 model.cellHeight = model.titleHeight + model.briefHeight + model.imageHeight + spaceX * spaceCount;
             }
         }

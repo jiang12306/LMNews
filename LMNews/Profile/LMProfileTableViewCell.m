@@ -20,8 +20,14 @@
 
 -(void)setupTitleLabel {
     CGFloat screenWidth = [UIScreen mainScreen].bounds.size.width;
+    if (!self.coverIV) {
+        self.coverIV = [[UIImageView alloc]initWithFrame:CGRectMake(10, 12.5, 25, 25)];
+        self.coverIV.contentMode = UIViewContentModeScaleAspectFit;
+        self.coverIV.clipsToBounds = YES;
+        [self.contentView insertSubview:self.coverIV belowSubview:self.lineView];
+    }
     if (!self.titleLab) {
-        self.titleLab = [[UILabel alloc]initWithFrame:CGRectMake(10, 0, 200, 50)];
+        self.titleLab = [[UILabel alloc]initWithFrame:CGRectMake(self.coverIV.frame.origin.x + self.coverIV.frame.size.width + 10, 0, 200, 50)];
         self.titleLab.font = [UIFont systemFontOfSize:16];
         [self.contentView insertSubview:self.titleLab belowSubview:self.lineView];
     }

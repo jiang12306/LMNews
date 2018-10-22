@@ -6,7 +6,7 @@
 //  Copyright © 2016年 LiuShannoon. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
+#import "LMBaseAlertView.h"
 #import <AssetsLibrary/AssetsLibrary.h>
 #import "XLPhotoBrowserTypeDefine.h"
 
@@ -71,7 +71,7 @@
 
 @end
 
-@interface XLPhotoBrowser : UIView 
+@interface XLPhotoBrowser : LMBaseAlertView
 
 /**
  *  用户点击的图片视图,用于做图片浏览器弹出的放大动画,不给次属性赋值会通过代理方法photoBrowser: sourceImageViewForIndex:尝试获取,如果还是获取不到则没有弹出放大动画

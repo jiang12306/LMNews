@@ -65,7 +65,7 @@ static NSString* collectionViewIdentifier = @"collectionViewIdentifier";
         [self.contentView addSubview:self.collectionView];
     }
     if (!self.mediaNameLab) {
-        self.mediaNameLab = [[UILabel alloc]initWithFrame:CGRectMake(10, self.detailLab.frame.origin.y + self.detailLab.frame.size.height + 10, screenWidth - 10 * 2, 20)];
+        self.mediaNameLab = [[UILabel alloc]initWithFrame:CGRectMake(10, self.detailLab.frame.origin.y + self.detailLab.frame.size.height + 10, screenWidth - 10 * 2, 15)];
         self.mediaNameLab.font = [UIFont systemFontOfSize:mediaNameFontSize];
         self.mediaNameLab.textColor = [UIColor colorWithHex:alreadyReadString];
         self.mediaNameLab.numberOfLines = 0;
@@ -155,7 +155,7 @@ static NSString* collectionViewIdentifier = @"collectionViewIdentifier";
         
         self.collectionView.frame = CGRectMake(0, self.detailLab.frame.origin.y + self.detailLab.frame.size.height + 10, screenWidth, model.collectionViewHeight);
     }else {
-        self.collectionView.frame = CGRectMake(0, self.detailLab.frame.origin.y + self.detailLab.frame.size.height + 10, screenWidth, 0);
+        self.collectionView.frame = CGRectMake(0, self.detailLab.frame.origin.y + self.detailLab.frame.size.height, screenWidth, 0);
     }
     [self.collectionView reloadData];
     
@@ -163,7 +163,7 @@ static NSString* collectionViewIdentifier = @"collectionViewIdentifier";
     if (model.showMediaName) {
         self.mediaNameLab.hidden = NO;
         self.mediaNameLab.text = model.mediaName;
-        self.mediaNameLab.frame = CGRectMake(10, self.collectionView.frame.origin.y + self.collectionView.frame.size.height + 10, screenWidth - 10 * 2, 20);
+        self.mediaNameLab.frame = CGRectMake(10, self.collectionView.frame.origin.y + self.collectionView.frame.size.height + 10, screenWidth - 10 * 2, 15);
     }
     if (model.alreadyRead) {
         self.titleLab.textColor = [UIColor colorWithHex:alreadyReadString];

@@ -27,7 +27,8 @@
 @property (nonatomic, assign) GenderType centerType;/**<性别*/
 @property (nonatomic, copy) NSString* centerBirthday;/**<出生日期*/
 @property (nonatomic, copy) NSString* centerLocalArea;/**<地区*/
-@property (nonatomic, copy) NSString* avatorUrlStr;/**<头像*/
+@property (nonatomic, copy) UIImage* avatorImage;/**<头像Image*/
+@property (nonatomic, copy) NSString* avatorUrlStr;/**<头像URL*/
 @property (nonatomic, copy) NSString* centerNick;/**<昵称*/
 @property (nonatomic, assign) BOOL isBindWeChat;/**<是否已绑定微信*/
 @property (nonatomic, assign) BOOL isBindQQ;/**<是否已绑定QQ*/
@@ -83,6 +84,9 @@ static NSString* cellIdentifier = @"cellIdentifier";
         genderStr = @"女";
     }
     self.avatorUrlStr = regUser.icon;
+    if (regUser.iconB != nil && regUser.iconB.length > 0) {
+        self.avatorImage = [UIImage imageWithData:regUser.iconB];
+    }
     self.centerType = regUser.gender;
     self.centerBirthday = regUser.birthday;
     self.centerLocalArea = regUser.localArea;
@@ -152,9 +156,13 @@ static NSString* cellIdentifier = @"cellIdentifier";
     if (row == 0) {
         [cell setupShowContentImageView:YES];
         [cell setupShowContentLabel:NO];
-        
-        [cell.contentIV sd_setImageWithURL:[NSURL URLWithString:self.avatorUrlStr] placeholderImage:[UIImage imageNamed:@"avator_LoginOut"]];
-        
+        if (self.avatorUrlStr != nil && self.avatorUrlStr.length > 0) {
+            [cell.contentIV sd_setImageWithURL:[NSURL URLWithString:self.avatorUrlStr] placeholderImage:[UIImage imageNamed:@"avator_LoginOut"]];
+        }else if (self.avatorImage != nil) {
+            cell.contentIV.image = self.avatorImage;
+        }else {
+            cell.contentIV.image = [UIImage imageNamed:@"avator_LoginOut"];
+        }
     }else if (row == 1) {
         NSString* genderStr = @"";
         if (self.centerType == GenderTypeGenderMale) {
@@ -426,7 +434,7 @@ static NSString* cellIdentifier = @"cellIdentifier";
         if (self.loginedUser != nil) {
             RegUser* user = self.loginedUser.user;
             NSString* birthdayStr = user.birthday;
-            if (birthdayStr != nil && ![birthdayStr isKindOfClass:[NSNull class]]) {
+            if (birthdayStr != nil && ![birthdayStr isKindOfClass:[NSNull class]] && birthdayStr.length > 0) {
                 NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
                 [dateFormatter setDateFormat:@"YYYY-MM-dd"];
                 date = [dateFormatter dateFromString:birthdayStr];

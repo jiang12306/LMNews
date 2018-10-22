@@ -30,6 +30,9 @@
 #import "LMRecommendImagesTableViewCell.h"
 #import "LMRecommendTextTableViewCell.h"
 #import "XLPhotoBrowser.h"
+#import "LMImagesNewsDetailViewController.h"
+#import "MBProgressHUD.h"
+#import "LMLoginAlertView.h"
 
 @interface LMNewsDetailViewController () <UITableViewDataSource, UITableViewDelegate, LMBaseRefreshTableViewDelegate, LMNewsDetailImageTableViewCellDelegate, LMNewsDetailGifTableViewCellDelegate, LMCommentTableViewCellDelegate, XLPhotoBrowserDelegate, XLPhotoBrowserDatasource>
 
@@ -47,6 +50,7 @@
 @property (nonatomic, assign) BOOL isCollect;
 @property (nonatomic, assign) BOOL isSub;
 @property (nonatomic, assign) NSInteger upCount;
+@property (nonatomic, assign) CGFloat currentOffset;/**<*/
 
 @property (nonatomic, copy) NSString* shareUrl;/**<新闻分享url*/
 
@@ -150,28 +154,35 @@ static NSString* recommendTextCellIdentifier = @"recommendTextCellIdentifier";
     self.titleLab.text = self.titleStr;
     [self.headerView addSubview:self.titleLab];
     
-    UIImageView* mediaIV = [[UIImageView alloc]initWithFrame:CGRectMake(10, self.titleLab.frame.origin.y + self.titleLab.frame.size.height + 10, 30, 30)];
-    mediaIV.layer.cornerRadius = 15;
+    UIImageView* mediaIV = [[UIImageView alloc]initWithFrame:CGRectMake(10, self.titleLab.frame.origin.y + self.titleLab.frame.size.height + 15, 40, 40)];
+    mediaIV.layer.cornerRadius = 20;
     mediaIV.layer.masksToBounds = YES;
     [mediaIV sd_setImageWithURL:[NSURL URLWithString:source.url] placeholderImage:[UIImage imageNamed:@"avator_LoginOut"]];
     [self.headerView addSubview:mediaIV];
     
     CGFloat tempNameWidth = [LMRecommendModel caculateRecommendImageLabelWidthWithText:source.sourceName maxHeight:30 maxLines:1 font:[UIFont systemFontOfSize:16]];
-    UILabel* nameLab = [[UILabel alloc]initWithFrame:CGRectMake(50, mediaIV.frame.origin.y, tempNameWidth, mediaIV.frame.size.height)];
+    if (tempNameWidth > self.view.frame.size.width - mediaIV.frame.size.width - 75 - 10 * 4) {
+        tempNameWidth = self.view.frame.size.width - mediaIV.frame.size.width - 75 - 10 * 4;
+    }
+    UILabel* nameLab = [[UILabel alloc]initWithFrame:CGRectMake(60, mediaIV.frame.origin.y, tempNameWidth, 20)];
     nameLab.font = [UIFont systemFontOfSize:16];
+    nameLab.numberOfLines = 1;
+    nameLab.lineBreakMode = NSLineBreakByTruncatingTail;
     nameLab.textColor = [UIColor colorWithHex:themeOrangeString];
     nameLab.text = source.sourceName;
     [self.headerView addSubview:nameLab];
     
     CGFloat tempTimeWidth = [LMRecommendModel caculateRecommendImageLabelWidthWithText:timeStr maxHeight:30 maxLines:1 font:[UIFont systemFontOfSize:14]];
-    UILabel* timeLab = [[UILabel alloc]initWithFrame:CGRectMake(nameLab.frame.origin.x + nameLab.frame.size.width + 10, mediaIV.frame.origin.y, tempTimeWidth, mediaIV.frame.size.height)];
-    timeLab.font = [UIFont systemFontOfSize:14];
-    timeLab.textColor = [UIColor colorWithHex:themeOrangeString];
+    UILabel* timeLab = [[UILabel alloc]initWithFrame:CGRectMake(nameLab.frame.origin.x, nameLab.frame.origin.y + nameLab.frame.size.height, tempTimeWidth, 20)];
+    timeLab.font = [UIFont systemFontOfSize:12];
+    timeLab.textColor = [UIColor colorWithHex:alreadyReadString];
     timeLab.text = timeStr;
     [self.headerView addSubview:timeLab];
     
-    UIButton* subBtn = [[UIButton alloc]initWithFrame:CGRectMake(timeLab.frame.origin.x + timeLab.frame.size.width + 10, mediaIV.frame.origin.y + 5, 80, 20)];
+    UIButton* subBtn = [[UIButton alloc]initWithFrame:CGRectMake(self.view.frame.size.width - 10 - 75, mediaIV.frame.origin.y + 5, 75, 30)];
     subBtn.backgroundColor = [UIColor colorWithHex:subOrangeString];
+    subBtn.layer.cornerRadius = 3;
+    subBtn.layer.masksToBounds = YES;
     subBtn.titleLabel.font = [UIFont systemFontOfSize:16];
     subBtn.tag = source.sourceId;
     if (source.isSub) {
@@ -187,7 +198,7 @@ static NSString* recommendTextCellIdentifier = @"recommendTextCellIdentifier";
     
     CGFloat tempBriefOriginY = 0;
     if (self.briefStr != nil && self.briefStr.length > 0) {
-        tempBriefOriginY = 10;
+        tempBriefOriginY = 15;
     }
     CGFloat tempBriefHeight = [LMRecommendModel caculateRecommendImageLabelHeightWithText:self.briefStr maxWidth:self.titleLab.frame.size.width maxLines:0 font:[UIFont systemFontOfSize:16]];
     self.briefLab = [[UILabel alloc]initWithFrame:CGRectMake(10, mediaIV.frame.origin.y + mediaIV.frame.size.height + tempBriefOriginY, self.headerView.frame.size.width - 10 * 2, tempBriefHeight)];
@@ -195,12 +206,25 @@ static NSString* recommendTextCellIdentifier = @"recommendTextCellIdentifier";
     self.briefLab.textColor = [UIColor grayColor];
     [self.headerView addSubview:self.briefLab];
     
-    self.headerView.frame = CGRectMake(0, 0, self.view.frame.size.width, self.briefLab.frame.origin.y + self.briefLab.frame.size.height + 10);
+    self.headerView.frame = CGRectMake(0, 0, self.view.frame.size.width, self.briefLab.frame.origin.y + self.briefLab.frame.size.height + 15);
     
     self.tableView.tableHeaderView = self.headerView;
 }
 
 -(void)clickedSourceSubscriptionButton:(UIButton* )sender {
+    LoginedRegUser* user = [LMTool getLoginedRegUser];
+    if (user == nil) {
+        LMLoginAlertView* loginAV = [[LMLoginAlertView alloc]init];
+        loginAV.loginBlock = ^(BOOL didLogined) {
+            if (didLogined) {
+                
+            }
+        };
+        [loginAV startShow];
+        
+        return;
+    }
+    
     SourceDoType type = SourceDoTypeSourceFollow;
     if (self.isSub) {
         type = SourceDoTypeSourceUnfollow;
@@ -217,44 +241,32 @@ static NSString* recommendTextCellIdentifier = @"recommendTextCellIdentifier";
     
     LMNetworkTool* tool = [LMNetworkTool sharedNetworkTool];
     [tool postWithCmd:8 ReqData:reqData successBlock:^(NSData *successData) {
-        LoginedRegUser* user = [LMTool getLoginedRegUser];
-        if (user == nil) {
-            LMFastLoginViewController* fastLoginVC = [[LMFastLoginViewController alloc]init];
-            fastLoginVC.userBlock = ^(LoginedRegUser *loginUser) {
-                if (loginUser != nil) {
-                    //
-                }
-            };
-            [weakSelf.navigationController pushViewController:fastLoginVC animated:YES];
-            
-            return;
-        }
         @try {
             QiWenApiRes* apiRes = [QiWenApiRes parseFromData:successData];
             if (apiRes.cmd == 8) {
                 ErrCode err = apiRes.err;
                 if (err == ErrCodeErrNone) {//成功
-                    if (self.isSub) {
-                        self.isSub = NO;
+                    if (weakSelf.isSub) {
+                        weakSelf.isSub = NO;
                         [sender setTitle:@"+关注" forState:UIControlStateNormal];
                     }else {
-                        self.isSub = YES;
+                        weakSelf.isSub = YES;
                         [sender setTitle:@"取消关注" forState:UIControlStateNormal];
                     }
                     
-                    [self showMBProgressHUDWithText:@"操作成功"];
+                    [weakSelf showMBProgressHUDWithText:@"操作成功"];
                 }else {//无法增删改
-                    [self showMBProgressHUDWithText:@"操作失败"];
+                    [weakSelf showMBProgressHUDWithText:@"操作失败"];
                 }
             }
         } @catch (NSException *exception) {
-            [self showMBProgressHUDWithText:NetworkFailedError];
+            [weakSelf showMBProgressHUDWithText:NetworkFailedError];
         } @finally {
-            [self hideNetworkLoadingView];
+            [weakSelf hideNetworkLoadingView];
         }
     } failureBlock:^(NSError *failureError) {
-        [self hideNetworkLoadingView];
-        [self showMBProgressHUDWithText:NetworkFailedError];
+        [weakSelf hideNetworkLoadingView];
+        [weakSelf showMBProgressHUDWithText:NetworkFailedError];
     }];
 }
 
@@ -263,17 +275,18 @@ static NSString* recommendTextCellIdentifier = @"recommendTextCellIdentifier";
     
     self.commentView = [[LMCommentView alloc]init];
     [self.commentView setupCommentCount:self.upCount];
+    [self.commentView setupCollectedState:self.isCollect];
     self.commentView.commentBlock = ^(BOOL didStart) {
         if (didStart) {
             LoginedRegUser* user = [LMTool getLoginedRegUser];
             if (user == nil) {
-                LMFastLoginViewController* fastLoginVC = [[LMFastLoginViewController alloc]init];
-                fastLoginVC.userBlock = ^(LoginedRegUser *loginUser) {
-                    if (loginUser != nil) {
+                LMLoginAlertView* loginAV = [[LMLoginAlertView alloc]init];
+                loginAV.loginBlock = ^(BOOL didLogined) {
+                    if (didLogined) {
                         [weakSelf showCommentInputView];
                     }
                 };
-                [weakSelf.navigationController pushViewController:fastLoginVC animated:YES];
+                [loginAV startShow];
                 
                 return;
             }
@@ -282,9 +295,13 @@ static NSString* recommendTextCellIdentifier = @"recommendTextCellIdentifier";
         }
     };
     self.commentView.numBlock = ^(BOOL showComment) {
+        if (weakSelf.dataArray == nil || weakSelf.dataArray.count == 0) {
+            return;
+        }
         NSInteger row = 0;
         NSInteger section = 0;
         if (showComment) {
+            weakSelf.currentOffset = weakSelf.tableView.contentOffset.y;
             if (weakSelf.tableView.numberOfSections == 1) {
                 row = weakSelf.dataArray.count - 1;
                 section = 0;
@@ -296,20 +313,22 @@ static NSString* recommendTextCellIdentifier = @"recommendTextCellIdentifier";
             NSIndexPath* indexPath = [NSIndexPath indexPathForRow:row inSection:section];
             [weakSelf.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionTop animated:YES];
         }else {
-            NSIndexPath* indexPath = [NSIndexPath indexPathForRow:row inSection:section];
-            [weakSelf.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionBottom animated:YES];
+            weakSelf.tableView.contentOffset = CGPointMake(0, weakSelf.currentOffset);
+            
+//            NSIndexPath* indexPath = [NSIndexPath indexPathForRow:row inSection:section];
+//            [weakSelf.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionBottom animated:YES];
         }
     };
     self.commentView.collectBlock = ^(BOOL didStart) {
         LoginedRegUser* user = [LMTool getLoginedRegUser];
         if (user == nil) {
-            LMFastLoginViewController* fastLoginVC = [[LMFastLoginViewController alloc]init];
-            fastLoginVC.userBlock = ^(LoginedRegUser *loginUser) {
-                if (loginUser != nil) {
-                    //
+            LMLoginAlertView* loginAV = [[LMLoginAlertView alloc]init];
+            loginAV.loginBlock = ^(BOOL didLogined) {
+                if (didLogined) {
+                    
                 }
             };
-            [weakSelf.navigationController pushViewController:fastLoginVC animated:YES];
+            [loginAV startShow];
             
             return;
         }
@@ -431,6 +450,8 @@ static NSString* recommendTextCellIdentifier = @"recommendTextCellIdentifier";
                             [weakSelf.commentView setupCommentCount:weakSelf.upCount];
                             
                             [weakSelf showMBProgressHUDWithText:@"评论成功"];
+                            
+                            [weakSelf loadNewsDetailDataWithRefresh:YES];
                         }
                     }
                 } @catch (NSException *exception) {
@@ -487,7 +508,11 @@ static NSString* recommendTextCellIdentifier = @"recommendTextCellIdentifier";
                                 if (tempCom.prevUser.nickname != nil && tempCom.prevUser.nickname.length > 0) {
                                     nickStr = tempCom.prevUser.nickname;
                                 }
-                                model.text = [NSString stringWithFormat:@"@%@ 评论 %@", nickStr, tempCom.text];
+                                if (nickStr != nil && nickStr.length > 0) {
+                                    model.text = [NSString stringWithFormat:@"@%@ 评论 %@", nickStr, tempCom.text];
+                                }else {
+                                    model.text = tempCom.text;
+                                }
                             }else {
                                 model.text = tempCom.text;
                             }
@@ -517,16 +542,11 @@ static NSString* recommendTextCellIdentifier = @"recommendTextCellIdentifier";
                             }else {
                                 model.unlikeWidth = 0;
                             }
-                            NSString* tempTimeStr = tempCom.cT;
-                            if (tempTimeStr != nil && tempTimeStr.length >= 10) {
-                                tempTimeStr = [tempTimeStr substringToIndex:10];
-                            }
-                            tempTimeStr = [NSString stringWithFormat:@"(%@)", tempTimeStr];
-                            model.time = tempTimeStr;
-                            model.timeWidth = [LMRecommendModel caculateRecommendImageLabelWidthWithText:tempTimeStr maxHeight:30 maxLines:1 font:[UIFont systemFontOfSize:CommentNameFontSize]];
+                            model.time = tempCom.cT;
+                            model.timeWidth = 130;
                             model.isFold = NO;
                             if (model.text != nil && model.text.length > 0) {
-                                [LMCommentModel caculateCommentLabelHeightWithText:model.text maxWidth:(self.view.frame.size.width - CommentAvatorIVWidth - 10 * 3) maxLines:4 font:[UIFont systemFontOfSize:CommentContentFontSize] block:^(CGFloat labHeight, CGFloat labOriginHeight, NSInteger lines) {
+                                [LMCommentModel caculateCommentLabelHeightWithText:model.text maxWidth:(self.view.frame.size.width - 10 * 2) maxLines:4 font:[UIFont systemFontOfSize:CommentContentFontSize] block:^(CGFloat labHeight, CGFloat labOriginHeight, NSInteger lines) {
                                     if (labOriginHeight > labHeight) {
                                         model.isFold = YES;
                                     }
@@ -580,9 +600,9 @@ static NSString* recommendTextCellIdentifier = @"recommendTextCellIdentifier";
                             NSString* str = membVideo.text;
                             CGFloat textHeight = 0;
                             if (str != nil) {
-                                NSString* htmlStr = [NSString stringWithFormat:@"<font size=\"5\">%@</font>", str];
+                                NSString* htmlStr = [NSString stringWithFormat:@"<span style=\"line-height:27px;\"><font size=\"5\">%@</font></span>", str];
                                 NSMutableAttributedString* attributedStr = [[NSMutableAttributedString alloc]initWithData:[htmlStr dataUsingEncoding:NSUnicodeStringEncoding] options:@{NSDocumentTypeDocumentAttribute : NSHTMLTextDocumentType} documentAttributes:nil error:nil];
-                                textHeight = [LMRecommendModel caculateRecommendImageLabelHeightWithAttributedText:attributedStr maxWidth:self.view.frame.size.width - 10 * 2 maxLines:0 font:[UIFont systemFontOfSize:16]];
+                                textHeight = [LMNewsDetailModel caculateTextViewHeightWithText:attributedStr maxWidth:self.view.frame.size.width - 10 * 2 font:[UIFont systemFontOfSize:16]];
                                 model.text = attributedStr;
                             }
                             model.titleHeight = textHeight;
@@ -649,8 +669,11 @@ static NSString* recommendTextCellIdentifier = @"recommendTextCellIdentifier";
 -(UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section {
     if (section == 1) {
         if (self.commentArray.count > 0) {
-            UIView* footerVi = [[UIView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 70)];
-            footerVi.backgroundColor = [UIColor whiteColor];
+            UIView* footerVi = [[UIView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 80)];
+            footerVi.backgroundColor = [UIColor colorWithRed:240/255.f green:240/255.f blue:240/255.f alpha:1];
+            UIView* whiteView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, footerVi.frame.size.width, footerVi.frame.size.height - 10)];
+            whiteView.backgroundColor = [UIColor whiteColor];
+            [footerVi addSubview:whiteView];
             UIButton* moreCommentBtn = [[UIButton alloc]initWithFrame:CGRectMake(10, 20, self.view.frame.size.width - 10 * 2, 30)];
             moreCommentBtn.backgroundColor = [UIColor colorWithRed:240/255.f green:240/255.f blue:240/255.f alpha:1];
             [moreCommentBtn setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
@@ -660,7 +683,7 @@ static NSString* recommendTextCellIdentifier = @"recommendTextCellIdentifier";
             moreCommentBtn.layer.masksToBounds = YES;
             moreCommentBtn.layer.borderColor = [UIColor grayColor].CGColor;
             moreCommentBtn.layer.borderWidth = 0.5f;
-            [footerVi addSubview:moreCommentBtn];
+            [whiteView addSubview:moreCommentBtn];
             return footerVi;
         }
     }
@@ -691,7 +714,7 @@ static NSString* recommendTextCellIdentifier = @"recommendTextCellIdentifier";
 -(CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section {
     if (section == 1) {
         if (self.commentArray.count > 0) {
-            return 70;
+            return 80;
         }
     }
     return 10;
@@ -763,6 +786,9 @@ static NSString* recommendTextCellIdentifier = @"recommendTextCellIdentifier";
                 }
             }
         }else if (type == 2) {//视频
+            if (model.text != nil && model.text.length > 0) {
+                cellHeight += 10;//文字与视频之间的间距
+            }
             cellHeight += (self.view.frame.size.width - 10 * 2) * 0.618;
         }
         return cellHeight;
@@ -782,18 +808,18 @@ static NSString* recommendTextCellIdentifier = @"recommendTextCellIdentifier";
     }else {
         LMCommentModel* model = [self.commentArray objectAtIndex:row];
         
-        CGFloat cellHeight = 30;
+        CGFloat cellHeight = 30 + CommentAvatorIVWidth;
         if (model.isFold) {
             if (model.contentHeight > 0) {
-                cellHeight += (10 * 3 + model.contentOriginHeight);
+                cellHeight += model.contentHeight;
             }
         }else {
             if (model.contentOriginHeight > 0) {
-                cellHeight += (10 * 3 + model.contentOriginHeight);
+                cellHeight += model.contentOriginHeight;
             }
         }
         
-        return cellHeight > CommentAvatorIVWidth ? cellHeight : CommentAvatorIVWidth;
+        return cellHeight;
     }
     return 0;
 }
@@ -918,13 +944,13 @@ static NSString* recommendTextCellIdentifier = @"recommendTextCellIdentifier";
             if (isLike) {
                 LoginedRegUser* user = [LMTool getLoginedRegUser];
                 if (user == nil) {
-                    LMFastLoginViewController* fastLoginVC = [[LMFastLoginViewController alloc]init];
-                    fastLoginVC.userBlock = ^(LoginedRegUser *loginUser) {
-                        if (loginUser != nil) {
-                            //
+                    LMLoginAlertView* loginAV = [[LMLoginAlertView alloc]init];
+                    loginAV.loginBlock = ^(BOOL didLogined) {
+                        if (didLogined) {
+                            
                         }
                     };
-                    [weakSelf.navigationController pushViewController:fastLoginVC animated:YES];
+                    [loginAV startShow];
                     
                     return;
                 }
@@ -936,13 +962,13 @@ static NSString* recommendTextCellIdentifier = @"recommendTextCellIdentifier";
             if (isUnlike) {
                 LoginedRegUser* user = [LMTool getLoginedRegUser];
                 if (user == nil) {
-                    LMFastLoginViewController* fastLoginVC = [[LMFastLoginViewController alloc]init];
-                    fastLoginVC.userBlock = ^(LoginedRegUser *loginUser) {
-                        if (loginUser != nil) {
-                            //
+                    LMLoginAlertView* loginAV = [[LMLoginAlertView alloc]init];
+                    loginAV.loginBlock = ^(BOOL didLogined) {
+                        if (didLogined) {
+                            
                         }
                     };
-                    [weakSelf.navigationController pushViewController:fastLoginVC animated:YES];
+                    [loginAV startShow];
                     
                     return;
                 }
@@ -971,15 +997,23 @@ static NSString* recommendTextCellIdentifier = @"recommendTextCellIdentifier";
         isRecommend = YES;
     }
     if (isRecommend) {
-        LMNewsDetailViewController* newsDetailVC = [[LMNewsDetailViewController alloc]init];
         LMRecommendModel* model = [self.recommendArray objectAtIndex:row];
-        LMArticleSimple* articleSimple = model.article;
-        newsDetailVC.newsId = articleSimple.articleId;
-        [self.navigationController pushViewController:newsDetailVC animated:YES];
+        model.alreadyRead = YES;
         
+        LMArticleSimple* articleSimple = model.article;
+        //
         [[LMDatabaseTool sharedDatabaseTool] setArticleWithArticleId:articleSimple.articleId isRead:YES];
         
-        model.alreadyRead = YES;
+        if (articleSimple.isAllPic) {
+            LMImagesNewsDetailViewController* imagesDetailVC = [[LMImagesNewsDetailViewController alloc]init];
+            imagesDetailVC.newsId = articleSimple.articleId;
+            [self.navigationController pushViewController:imagesDetailVC animated:YES];
+        }else {
+            LMNewsDetailViewController* newsDetailVC = [[LMNewsDetailViewController alloc]init];
+            newsDetailVC.newsId = articleSimple.articleId;
+            [self.navigationController pushViewController:newsDetailVC animated:YES];
+        }
+        
         [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
     }
 }
@@ -995,6 +1029,19 @@ static NSString* recommendTextCellIdentifier = @"recommendTextCellIdentifier";
 #pragma mark -LMNewsDetailImageTableViewCellDelegate
 -(void)imageTableViewCellLoadImageSucceed:(BOOL)isSucceed cell:(LMNewsDetailImageTableViewCell *)cell indexPath:(NSIndexPath *)indexPath{
     if (isSucceed) {
+        [self.tableView beginUpdates];
+        [self.tableView endUpdates];
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            @try {
+                [self.tableView scrollRectToVisible:CGRectMake(0, self.tableView.contentOffset.y, self.tableView.frame.size.width, self.tableView.frame.size.height) animated:NO];
+            } @catch (NSException *exception) {
+                
+            } @finally {
+                
+            }
+        });
+    }else {
         [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
     }
 }
@@ -1017,12 +1064,10 @@ static NSString* recommendTextCellIdentifier = @"recommendTextCellIdentifier";
         }
     }else {
         for (NSInteger i = 0; i < self.imagesArray.count; i ++) {
-            LMNewsDetailModel* cellModel = [self.imagesArray objectAtIndex:i];
-            if (cellModel.type == 1 && !cellModel.isGif && cellModel.url != nil && cellModel.url.length > 0) {
-                if ([model.url isEqualToString:cellModel.url]) {
-                    clickedIndex = i;
-                    break;
-                }
+            NSString* tempImgStr = [self.imagesArray objectAtIndex:i];
+            if ([model.url isEqualToString:tempImgStr]) {
+                clickedIndex = i;
+                break;
             }
         }
     }
@@ -1036,10 +1081,7 @@ static NSString* recommendTextCellIdentifier = @"recommendTextCellIdentifier";
     // 快速创建并进入浏览模式
     XLPhotoBrowser *browser = [XLPhotoBrowser showPhotoBrowserWithImages:self.imagesArray currentImageIndex:clickedIndex];
     [browser setActionSheetWithTitle:@"选项" delegate:self cancelButtonTitle:nil deleteButtonTitle:nil otherButtonTitles:@"保存图片", nil];
-    // 自定义pageControl的一些属性
-    browser.pageDotColor = [UIColor grayColor];
-    browser.currentPageDotColor = [UIColor whiteColor];
-    browser.pageControlStyle = XLPhotoBrowserPageControlStyleClassic;
+    browser.browserStyle = XLPhotoBrowserStyleIndexLabel;
 }
 
 #pragma mark -XLPhotoBrowserDatasource
@@ -1060,34 +1102,44 @@ static NSString* recommendTextCellIdentifier = @"recommendTextCellIdentifier";
 }
 
 - (void)image:(UIImage *)image didFinishSavingWithError:(NSError *)error contextInfo:(void *)contextInfo {
-    if (error == nil) {
-        [self showMBProgressHUDWithText:@"保存成功"];
-    }else {
-        [self showMBProgressHUDWithText:@"保存失败"];
+    NSString* hudStr = @"保存成功";
+    if (error != nil) {
+        hudStr = @"保存失败";
     }
+    NSArray* windowsArr = [UIApplication sharedApplication].windows;
+    UIWindow* currentWindow = [windowsArr lastObject];
+    MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:currentWindow animated:YES];
+    hud.mode = MBProgressHUDModeText;
+    hud.label.text = hudStr;
+    hud.removeFromSuperViewOnHide = YES;
+    [hud hideAnimated:YES afterDelay:1];
 }
 
 #pragma mark -LMNewsDetailGifTableViewCellDelegate
 -(void)gifTableViewCellLoadImageSucceed:(BOOL)isSucceed cell:(LMNewsDetailGifTableViewCell *)cell model:(LMNewsDetailModel *)model indexPath:(NSIndexPath *)indexPath {
     if (isSucceed) {
-        LMNewsDetailModel* tempModel = [self.dataArray objectAtIndex:indexPath.row];
-        tempModel.isSucceed = YES;
-        tempModel.imgHeight = model.imgHeight;
-        [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
+        [self.tableView beginUpdates];
+        [self.tableView endUpdates];
     }
 }
 
 #pragma mark -LMCommentTableViewCellDelegate
 -(void)didStartScrollCell:(LMCommentTableViewCell* )selectedCell {
     NSInteger section = 0;
+    if (self.dataArray.count == 0) {
+        section = 1;
+    }
     NSInteger rows = [self.tableView numberOfRowsInSection:section];
     for (NSInteger i = 0; i < rows; i ++) {
         NSIndexPath* indexPath = [NSIndexPath indexPathForRow:i inSection:section];
-        LMCommentTableViewCell* cell = [self.tableView cellForRowAtIndexPath:indexPath];
-        if (cell == selectedCell) {
-            continue;
+        UITableViewCell* indexCell = [self.tableView cellForRowAtIndexPath:indexPath];
+        if ([indexCell isKindOfClass:[LMCommentTableViewCell class]]) {
+            LMCommentTableViewCell* cell = (LMCommentTableViewCell* )indexCell;
+            if (cell == selectedCell) {
+                continue;
+            }
+            [cell showDelete:NO animation:YES];
         }
-        [cell showDelete:NO animation:YES];
     }
 }
 
@@ -1149,7 +1201,7 @@ static NSString* recommendTextCellIdentifier = @"recommendTextCellIdentifier";
     }
     
     LMCommentDetailViewController* commentDetailVC = [[LMCommentDetailViewController alloc]init];
-    commentDetailVC.articleTitle = self.title;
+    commentDetailVC.articleTitle = self.titleStr;
     commentDetailVC.articleBrief = self.briefStr;
     commentDetailVC.articleImgUrl = tempImgStr;
     commentDetailVC.articleImg = tempImg;

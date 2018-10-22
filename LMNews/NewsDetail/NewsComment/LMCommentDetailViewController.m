@@ -13,7 +13,7 @@
 #import "LMCommentView.h"
 #import "LMCommentInputView.h"
 #import "LMTool.h"
-#import "LMFastLoginViewController.h"
+#import "LMLoginAlertView.h"
 #import "LMShareView.h"
 #import "LMShareMessage.h"
 
@@ -130,17 +130,18 @@ static NSString* cellIdentifier = @"cellIdentifier";
     
     self.commentView = [[LMCommentView alloc]init];
     [self.commentView setupCommentCount:self.commentCount];
+    [self.commentView setupCollectedState:self.isMark];
     self.commentView.commentBlock = ^(BOOL didStart) {
         if (didStart) {
             LoginedRegUser* user = [LMTool getLoginedRegUser];
             if (user == nil) {
-                LMFastLoginViewController* fastLoginVC = [[LMFastLoginViewController alloc]init];
-                fastLoginVC.userBlock = ^(LoginedRegUser *loginUser) {
-                    if (loginUser != nil) {
+                LMLoginAlertView* loginAV = [[LMLoginAlertView alloc]init];
+                loginAV.loginBlock = ^(BOOL didLogined) {
+                    if (didLogined) {
                         [weakSelf showCommentInputView];
                     }
                 };
-                [weakSelf.navigationController pushViewController:fastLoginVC animated:YES];
+                [loginAV startShow];
                 
                 return;
             }
@@ -151,13 +152,13 @@ static NSString* cellIdentifier = @"cellIdentifier";
     self.commentView.collectBlock = ^(BOOL didStart) {
         LoginedRegUser* user = [LMTool getLoginedRegUser];
         if (user == nil) {
-            LMFastLoginViewController* fastLoginVC = [[LMFastLoginViewController alloc]init];
-            fastLoginVC.userBlock = ^(LoginedRegUser *loginUser) {
-                if (loginUser != nil) {
-                    //
+            LMLoginAlertView* loginAV = [[LMLoginAlertView alloc]init];
+            loginAV.loginBlock = ^(BOOL didLogined) {
+                if (didLogined) {
+                    
                 }
             };
-            [weakSelf.navigationController pushViewController:fastLoginVC animated:YES];
+            [loginAV startShow];
             
             return;
         }
@@ -317,7 +318,11 @@ static NSString* cellIdentifier = @"cellIdentifier";
                                 if (tempCom.prevUser.nickname != nil && tempCom.prevUser.nickname.length > 0) {
                                     nickStr = tempCom.prevUser.nickname;
                                 }
-                                model.text = [NSString stringWithFormat:@"@%@ 评论 %@", nickStr, tempCom.text];
+                                if (nickStr != nil && nickStr.length > 0) {
+                                    model.text = [NSString stringWithFormat:@"@%@ 评论 %@", nickStr, tempCom.text];
+                                }else {
+                                    model.text = tempCom.text;
+                                }
                             }else {
                                 model.text = tempCom.text;
                             }
@@ -347,16 +352,11 @@ static NSString* cellIdentifier = @"cellIdentifier";
                             }else {
                                 model.unlikeWidth = 0;
                             }
-                            NSString* tempTimeStr = tempCom.cT;
-                            if (tempTimeStr != nil && tempTimeStr.length >= 10) {
-                                tempTimeStr = [tempTimeStr substringToIndex:10];
-                            }
-                            tempTimeStr = [NSString stringWithFormat:@"(%@)", tempTimeStr];
-                            model.time = tempTimeStr;
-                            model.timeWidth = [LMRecommendModel caculateRecommendImageLabelWidthWithText:tempTimeStr maxHeight:30 maxLines:1 font:[UIFont systemFontOfSize:CommentNameFontSize]];
+                            model.time = tempCom.cT;
+                            model.timeWidth = 130;
                             model.isFold = NO;
                             if (model.text != nil && model.text.length > 0) {
-                                [LMCommentModel caculateCommentLabelHeightWithText:model.text maxWidth:(self.view.frame.size.width - CommentAvatorIVWidth - 10 * 3) maxLines:0 font:[UIFont systemFontOfSize:CommentContentFontSize] block:^(CGFloat labHeight, CGFloat labOriginHeight, NSInteger lines) {
+                                [LMCommentModel caculateCommentLabelHeightWithText:model.text maxWidth:(self.view.frame.size.width - 10 * 2) maxLines:0 font:[UIFont systemFontOfSize:CommentContentFontSize] block:^(CGFloat labHeight, CGFloat labOriginHeight, NSInteger lines) {
                                     
                                     model.contentHeight = labHeight;
                                     model.contentOriginHeight = labOriginHeight;
@@ -432,14 +432,14 @@ static NSString* cellIdentifier = @"cellIdentifier";
     NSInteger row = indexPath.row;
     LMCommentModel* model = [self.dataArray objectAtIndex:row];
     
-    CGFloat cellHeight = 30;
+    CGFloat cellHeight = 30 + CommentAvatorIVWidth;
     if (model.isFold) {
         if (model.contentHeight > 0) {
-            cellHeight += (10 * 3 + model.contentOriginHeight);
+            cellHeight += model.contentHeight;
         }
     }else {
         if (model.contentOriginHeight > 0) {
-            cellHeight += (10 * 3 + model.contentOriginHeight);
+            cellHeight += model.contentOriginHeight;
         }
     }
     
@@ -471,13 +471,13 @@ static NSString* cellIdentifier = @"cellIdentifier";
         if (isLike) {
             LoginedRegUser* user = [LMTool getLoginedRegUser];
             if (user == nil) {
-                LMFastLoginViewController* fastLoginVC = [[LMFastLoginViewController alloc]init];
-                fastLoginVC.userBlock = ^(LoginedRegUser *loginUser) {
-                    if (loginUser != nil) {
-                        //
+                LMLoginAlertView* loginAV = [[LMLoginAlertView alloc]init];
+                loginAV.loginBlock = ^(BOOL didLogined) {
+                    if (didLogined) {
+                        
                     }
                 };
-                [weakSelf.navigationController pushViewController:fastLoginVC animated:YES];
+                [loginAV startShow];
                 
                 return;
             }
@@ -489,13 +489,13 @@ static NSString* cellIdentifier = @"cellIdentifier";
         if (isUnlike) {
             LoginedRegUser* user = [LMTool getLoginedRegUser];
             if (user == nil) {
-                LMFastLoginViewController* fastLoginVC = [[LMFastLoginViewController alloc]init];
-                fastLoginVC.userBlock = ^(LoginedRegUser *loginUser) {
-                    if (loginUser != nil) {
-                        //
+                LMLoginAlertView* loginAV = [[LMLoginAlertView alloc]init];
+                loginAV.loginBlock = ^(BOOL didLogined) {
+                    if (didLogined) {
+                        
                     }
                 };
-                [weakSelf.navigationController pushViewController:fastLoginVC animated:YES];
+                [loginAV startShow];
                 
                 return;
             }

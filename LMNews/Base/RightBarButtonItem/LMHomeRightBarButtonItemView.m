@@ -35,11 +35,11 @@ static NSString* unreadMsgKey = @"messageAlertKeyName";
         [self.bgBtn addTarget:self action:@selector(clickedRightBarButtonItem:) forControlEvents:UIControlEventTouchUpInside];
         [self addSubview:self.bgBtn];
         
-        self.alertIV = [[UIImageView alloc]initWithFrame:CGRectMake(0, 0, rect.size.width, rect.size.height)];
+        self.alertIV = [[UIImageView alloc]initWithFrame:CGRectMake(2.5, 2.5, rect.size.width - 5, rect.size.height - 5)];
         self.alertIV.image = [UIImage imageNamed:@"messageAlert"];
         [self insertSubview:self.alertIV aboveSubview:self.bgBtn];
         
-        self.dotLab = [[UILabel alloc]initWithFrame:CGRectMake(rect.size.width - 10, 0, 10, 10)];
+        self.dotLab = [[UILabel alloc]initWithFrame:CGRectMake(rect.size.width - 12, 0, 10, 10)];
         self.dotLab.backgroundColor = [UIColor colorWithHex:themeOrangeString];
         self.dotLab.layer.cornerRadius = 5;
         self.dotLab.layer.masksToBounds = YES;

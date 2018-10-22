@@ -6,10 +6,10 @@
 //  Copyright © 2018年 rongyao100. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
+#import "LMBaseAlertView.h"
 
 typedef void (^LMCommentInputViewBlock) (NSString* inputStr);
-@interface LMCommentInputView : UIView
+@interface LMCommentInputView : LMBaseAlertView
 
 //256个字
 @property (nonatomic, strong) UITextView* textView;

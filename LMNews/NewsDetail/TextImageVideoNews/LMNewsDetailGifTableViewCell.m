@@ -22,15 +22,8 @@
 
 -(void)setupTextLab {
     CGFloat screenWidth = [UIScreen mainScreen].bounds.size.width;
-    if (!self.textLab) {
-        self.textLab = [[UILabel alloc]initWithFrame:CGRectMake(10, 5, screenWidth - 10 * 2, 0)];
-        self.textLab.font = [UIFont systemFontOfSize:16];
-        self.textLab.numberOfLines = 0;
-        self.textLab.lineBreakMode = NSLineBreakByTruncatingTail;
-        [self.contentView addSubview:self.textLab];
-    }
     if (!self.webView) {
-        self.webView = [[WKWebView alloc]initWithFrame:CGRectMake(10, self.textLab.frame.origin.y + self.textLab.frame.size.height + 10, screenWidth - 10 * 2, (screenWidth - 10 * 2) * 0.618)];
+        self.webView = [[WKWebView alloc]initWithFrame:CGRectMake(10, 10, screenWidth - 10 * 2, (screenWidth - 10 * 2) * 0.618)];
         self.webView.backgroundColor = [UIColor clearColor];
         self.webView.scrollView.showsVerticalScrollIndicator = NO;
         self.webView.scrollView.showsHorizontalScrollIndicator = NO;
@@ -48,34 +41,25 @@
         [self.aiView stopAnimating];
         self.aiView.hidden = YES;
     }
+    if (!self.textView) {
+        self.textView = [[UITextView alloc]initWithFrame:CGRectMake(10, 5, screenWidth - 10 * 2, 100)];
+        self.textView.font = [UIFont systemFontOfSize:16];
+        self.textView.editable = NO;
+        self.textView.scrollEnabled = NO;
+        [self.contentView addSubview:self.textView];
+    }
 }
 
 -(void)setupGifContent:(LMNewsDetailModel *)model indexPath:(NSIndexPath *)indexPath {
-    self.gifModel = [model mutableCopy];
+    self.gifModel = model;
     self.gifIndexPath = [NSIndexPath indexPathForRow:indexPath.row inSection:indexPath.section];
     
     CGFloat screenWidth = [UIScreen mainScreen].bounds.size.width;
-    NSAttributedString* str = model.text;
-    if (str != nil && str.length > 0) {
-        self.textLab.attributedText = str;
-        self.textLab.frame = CGRectMake(10, 10, screenWidth - 10 * 2, model.titleHeight);
-    }else {
-        self.textLab.attributedText = str;
-        self.textLab.frame = CGRectMake(10, 0, screenWidth - 10 * 2, 0);
-    }
     if (model.isSucceed) {//单独改变webView的frame没用，还得重新加载url
-        self.webView.frame = CGRectMake(10, self.textLab.frame.origin.y + self.textLab.frame.size.height + 10, self.textLab.frame.size.width, model.imgHeight);
+        self.webView.frame = CGRectMake(10, 10, self.textView.frame.size.width, model.imgHeight);
         
-        self.aiView.center = self.webView.center;
-        self.aiView.hidden = NO;
-        [self.aiView startAnimating];
-        
-        NSString* urlStr = model.gif;
-        if (urlStr != nil && urlStr.length > 0) {
-            NSString* encodeStr = [urlStr stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-            NSURL* encodeUrl = [NSURL URLWithString:encodeStr];
-            [self.webView loadRequest:[NSURLRequest requestWithURL:encodeUrl]];
-        }
+        [self.aiView stopAnimating];
+        self.aiView.hidden = YES;
     }else {
         NSString* urlStr = model.gif;
         if (urlStr != nil && urlStr.length > 0) {
@@ -89,24 +73,42 @@
             [self.webView loadRequest:[NSURLRequest requestWithURL:encodeUrl]];
         }
     }
+    NSAttributedString* str = model.text;
+    if (str != nil && str.length > 0) {
+        self.textView.attributedText = str;
+        self.textView.frame = CGRectMake(10, self.webView.frame.origin.y + self.webView.frame.size.height + 10, screenWidth - 10 * 2, model.titleHeight);
+    }else {
+        self.textView.frame = CGRectMake(10, 0, screenWidth - 10 * 2, 0);
+    }
 }
 
 -(void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation {
-    if (self.gifModel.isSucceed) {
-        [self.aiView stopAnimating];
-        self.aiView.hidden = YES;
-        
-        return;
-    }
+    CGFloat screenWidth = [UIScreen mainScreen].bounds.size.width;
+    
     [self.webView evaluateJavaScript:@"document.body.offsetHeight" completionHandler:^(id data, NSError * _Nullable error) {
         CGFloat height = [data floatValue];
-//        self.webView.frame = CGRectMake(10, self.textLab.frame.origin.y + self.textLab.frame.size.height + 10, self.textLab.frame.size.width, height);
+        
         //计算wkWebview中gif高度并赋值给model
-        self.gifModel.isSucceed = YES;
-        self.gifModel.imgHeight = height;
-        if (self.delegate && [self.delegate respondsToSelector:@selector(gifTableViewCellLoadImageSucceed:cell:model:indexPath:)]) {
-            [self.delegate gifTableViewCellLoadImageSucceed:YES cell:self model:self.gifModel indexPath:self.gifIndexPath];
-        }
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.aiView stopAnimating];
+            self.aiView.hidden = YES;
+            
+            self.gifModel.isSucceed = YES;
+            self.gifModel.imgHeight = height;
+            
+            self.webView.frame = CGRectMake(10, 10, screenWidth - 10 * 2, height);
+            NSAttributedString* str = self.gifModel.text;
+            if (str != nil && str.length > 0) {
+                self.textView.attributedText = str;
+                self.textView.frame = CGRectMake(10, self.webView.frame.origin.y + self.webView.frame.size.height + 10, screenWidth - 10 * 2, self.gifModel.titleHeight);
+            }else {
+                self.textView.frame = CGRectMake(10, 0, screenWidth - 10 * 2, 0);
+            }
+            
+            if (self.delegate && [self.delegate respondsToSelector:@selector(gifTableViewCellLoadImageSucceed:cell:model:indexPath:)]) {
+                [self.delegate gifTableViewCellLoadImageSucceed:YES cell:self model:self.gifModel indexPath:self.gifIndexPath];
+            }
+        });
     }];
 }
 

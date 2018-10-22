@@ -17,7 +17,7 @@
  */
 -(void)exchangeLaunchState:(BOOL)isFirstLaunch;
 
-/** 跳转到任意VC
+/** 当前vc跳转到任意VC
  *  @param purposeVC : 目标VC
  */
 -(void)currentViewControllerPushToViewController:(UIViewController* )purposeVC;
@@ -27,7 +27,7 @@
  */
 -(void)setCurrentViewControllerIndex:(NSInteger )index;
 
-/** 跳转至vc
+/** 先回到根视图，然后跳转至vc
  *  @param classString 类型字符串
  *  @param paramString 传过来的参数
  */

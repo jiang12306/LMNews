@@ -11,7 +11,7 @@
 #import "LMMyCollectionTableViewCell.h"
 #import "LMNewsDetailViewController.h"
 #import "LMTool.h"
-#import "LMFastLoginViewController.h"
+#import "LMLoginAlertView.h"
 
 @interface LMMyCollectionViewController () <UITableViewDataSource, UITableViewDelegate, LMBaseRefreshTableViewDelegate, LMMyCollectionTableViewCellDelegate>
 
@@ -231,13 +231,13 @@ static NSString* cellIdentifier = @"cellIdentifier";
     __weak LMMyCollectionViewController* weakSelf = self;
     LoginedRegUser* user = [LMTool getLoginedRegUser];
     if (user == nil) {
-        LMFastLoginViewController* fastLoginVC = [[LMFastLoginViewController alloc]init];
-        fastLoginVC.userBlock = ^(LoginedRegUser *loginUser) {
-            if (loginUser != nil) {
-                //
+        LMLoginAlertView* loginAV = [[LMLoginAlertView alloc]init];
+        loginAV.loginBlock = ^(BOOL didLogined) {
+            if (didLogined) {
+                
             }
         };
-        [weakSelf.navigationController pushViewController:fastLoginVC animated:YES];
+        [loginAV startShow];
         
         return;
     }

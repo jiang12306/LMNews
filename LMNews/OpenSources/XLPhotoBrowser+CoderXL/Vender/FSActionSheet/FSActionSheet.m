@@ -264,17 +264,17 @@ static NSString * const kFSActionSheetCellIdentifier = @"kFSActionSheetCellIdent
 // 隐藏
 - (void)hideWithCompletion:(void(^)())completion {
     [UIView animateWithDuration:0.25 delay:0 options:UIViewAnimationOptionCurveEaseOut animations:^{
-        _backView.alpha   = 0;
+        self->_backView.alpha   = 0;
         CGRect newFrame   = self.frame;
-        newFrame.origin.y = CGRectGetMaxY(_controllerView.frame);
+        newFrame.origin.y = CGRectGetMaxY(self->_controllerView.frame);
         self.frame        = newFrame;
     } completion:^(BOOL finished) {
         [[[UIApplication sharedApplication].delegate window] makeKeyWindow];
         if (completion) completion();
-        [_backView removeFromSuperview];
-        _backView = nil;
-        [_tableView removeFromSuperview];
-        _tableView = nil;
+        [self->_backView removeFromSuperview];
+        self->_backView = nil;
+        [self->_tableView removeFromSuperview];
+        self->_tableView = nil;
         [self removeFromSuperview];
         self.popupWindow = nil;
         self.selectedHandler = nil;
@@ -304,6 +304,11 @@ static NSString * const kFSActionSheetCellIdentifier = @"kFSActionSheetCellIdent
     [self.tableView reloadData];
     // 内容高度
     CGFloat contentHeight = self.tableView.contentSize.height;
+    CGRect rect = CGRectMake(0, 0, 375, 812);
+    CGRect deviceRect = [UIScreen mainScreen].bounds;
+    if (CGRectEqualToRect(rect, deviceRect)) {//iPhone X
+        contentHeight += 20;
+    }
     // 适配屏幕高度
     CGFloat contentMaxHeight = CGRectGetHeight(self.popupWindow.frame)*FSActionSheetContentMaxScale;
     if (contentHeight > contentMaxHeight) {
@@ -321,16 +326,16 @@ static NSString * const kFSActionSheetCellIdentifier = @"kFSActionSheetCellIdent
     [self.popupWindow makeKeyAndVisible];
     
     [UIView animateWithDuration:0.25 delay:0 options:UIViewAnimationOptionCurveEaseOut animations:^{
-        _backView.alpha   = 0.38;
+        self->_backView.alpha   = 0.38;
         CGRect newFrame   = self.frame;
-        newFrame.origin.y = CGRectGetMaxY(_controllerView.frame)-selfH;
+        newFrame.origin.y = CGRectGetMaxY(self->_controllerView.frame)-selfH;
         self.frame        = newFrame;
     } completion:^(BOOL finished) {
         // constraint
-        [_controllerView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[self]|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(self)]];
-        [_controllerView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[self]|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(self)]];
+        [self->_controllerView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[self]|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(self)]];
+        [self->_controllerView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[self]|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(self)]];
         self.heightConstraint = [NSLayoutConstraint constraintWithItem:self attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1 constant:contentHeight];
-        [_controllerView addConstraint:_heightConstraint];
+        [self->_controllerView addConstraint:self->_heightConstraint];
     }];
 }
 
@@ -455,8 +460,8 @@ static NSString * const kFSActionSheetCellIdentifier = @"kFSActionSheetCellIdent
         __weak __typeof(&*self)weakSelf = self;
         [self hideWithCompletion:^{
             if (indexPath.section == 0) {
-                if (_selectedHandler) {
-                    _selectedHandler(indexPath.row);
+                if (self->_selectedHandler) {
+                    self->_selectedHandler(indexPath.row);
                 }
                 if (weakSelf.delegate && [weakSelf.delegate respondsToSelector:@selector(FSActionSheet:selectedIndex:)]) {
                     [weakSelf.delegate FSActionSheet:self selectedIndex:indexPath.row];

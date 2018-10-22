@@ -53,7 +53,7 @@
 }
 
 +(void)shareToQQWithTitle:(NSString* )titleStr description:(NSString* )descriptionStr urlStr:(NSString* )urlStr isZone:(BOOL )isZone imgStr:(NSString* )imgStr {
-    [[TencentOAuth alloc]initWithAppId:qqAppId andDelegate:self];
+    [[TencentOAuth alloc]initWithAppId:qqAppId andDelegate:[LMShareMessage new]];
     
     QQApiNewsObject *newsObj = [QQApiNewsObject
                                 objectWithURL:[NSURL URLWithString:urlStr]

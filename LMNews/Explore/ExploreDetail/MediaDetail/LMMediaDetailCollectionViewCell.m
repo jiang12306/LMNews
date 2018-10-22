@@ -29,6 +29,11 @@
         self.mediaIV.clipsToBounds = YES;
         [self.contentView addSubview:self.mediaIV];
     }
+    if (!self.bgView) {
+        self.bgView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
+        self.bgView.backgroundColor = [UIColor colorWithRed:150/255.f green:150/255.f blue:150/255.f alpha:0.7];
+        [self.contentView addSubview:self.bgView];
+    }
     if (!self.nameLab) {
         self.nameLab = [[UILabel alloc]initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
         self.nameLab.textColor = [UIColor whiteColor];
@@ -39,6 +44,8 @@
     if (!self.subBtn) {
         self.subBtn = [[UIButton alloc]initWithFrame:CGRectMake(0, self.frame.size.height - 1, self.frame.size.width, 1)];
         self.subBtn.backgroundColor = [UIColor colorWithHex:subOrangeString];
+        self.subBtn.layer.cornerRadius = 3;
+        self.subBtn.layer.masksToBounds = YES;
         self.subBtn.titleLabel.font = [UIFont systemFontOfSize:16];
         [self.subBtn addTarget:self action:@selector(clickedSubButton:) forControlEvents:UIControlEventTouchUpInside];
         [self.contentView addSubview:self.subBtn];
@@ -46,10 +53,11 @@
 }
 
 -(void)layoutSubviews {
+    self.bgView.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
     if (self.nameLab.text) {
         self.mediaIV.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
         self.nameLab.frame = CGRectMake(0, 40, self.frame.size.width, 20);
-        self.subBtn.frame = CGRectMake(10, self.nameLab.frame.origin.y + self.nameLab.frame.size.height + 10, 80, 20);
+        self.subBtn.frame = CGRectMake(10, self.nameLab.frame.origin.y + self.nameLab.frame.size.height + 5, 75, 30);
     }
 }
 

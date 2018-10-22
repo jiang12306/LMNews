@@ -58,7 +58,7 @@
 //显示 网络加载
 -(void)showNetworkLoadingView {
     if (!self.loadingView) {
-        self.loadingView = [[UIView alloc]initWithFrame:CGRectMake((self.view.frame.size.width - 70)/2, (self.view.frame.size.height - 120)/2, 70, 70)];
+        self.loadingView = [[UIView alloc]initWithFrame:CGRectMake((self.view.frame.size.width - 70)/2, (self.view.frame.size.height - 120 - 64)/2, 70, 70)];
         self.loadingView.backgroundColor = [UIColor colorWithRed:40.f/255 green:40.f/255 blue:40.f/255 alpha:0.6];
         self.loadingView.layer.cornerRadius = 5;
         self.loadingView.layer.masksToBounds = YES;

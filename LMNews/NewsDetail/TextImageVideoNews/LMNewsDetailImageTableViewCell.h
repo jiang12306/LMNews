@@ -25,7 +25,9 @@
 
 @interface LMNewsDetailImageTableViewCell : LMBaseTableViewCell
 
-@property (nonatomic, strong) UILabel* textLab;
+@property (nonatomic, strong) LMNewsDetailModel* imgModel;
+
+@property (nonatomic, strong) UITextView* textView;
 @property (nonatomic, strong) UIImageView* contentIV;
 
 @property (nonatomic, weak) id<LMNewsDetailImageTableViewCellDelegate> delegate;
